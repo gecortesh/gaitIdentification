@@ -23,8 +23,8 @@ def splitData(dataset,labels_dataset):
 
 def dataAndLabels():
 
-    dataPath = glob.glob('/home/gabych/Documents/ETH/intention_prediction/data/Balgrist_20170508/first/*.csv')
-    files2Read = list(set([dataPath[f][77:len(dataPath[f])-6] for f in range(0,len(dataPath))]))
+    dataPath = glob.glob('/home/gabych/Documents/ETH/gaitIdentification/data/Balgrist_20170508/first/*.csv')
+    files2Read = list(set([dataPath[f][75:len(dataPath[f])-6] for f in range(0,len(dataPath))]))
     data={}
     data['Ascend']={}
     data['Descend']={}
@@ -85,6 +85,6 @@ def rollingWindow(a, window):
     
 def dataSegmentation(data, window_size):
     x_data = data[:(len(data)-(len(data) % window_size))]
-    batches = x_data.reshape(-1, window_size, data[1].shape)
+    batches = x_data.reshape(-1, window_size, data.shape[1])
     return batches
     

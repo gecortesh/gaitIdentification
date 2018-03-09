@@ -114,7 +114,7 @@ def actualReading(filestoread):
 
     # Specify the directory and the files 
     #folder     = r"C:\Users\Gleb\OneDrive\ETH Zurich\Study Material\Master Thesis\SMS Lab\GRAIL Tests\Balgrist_20170508"
-    folder = r"/home/gabych/Documents/ETH/intention_prediction/data/Balgrist_20170508"   
+    folder = r"/home/gabych/Documents/ETH/gaitIdentification/data/Balgrist_20170508"   
 #    files2Read = ["CA40BLevel*.csv", "CA40BAscend*.csv", "CA40BDescend*.csv", # Clara Brockmann
 #                  "KA40SLevel*.csv", "KA40SAscend*.csv", "KA40SDescend*.csv", # Katja Staehli
 #                  "FN20DLevel*.csv", "FN20DAscend*.csv", "FN20DDescend*.csv", # Fabian Dietschi
