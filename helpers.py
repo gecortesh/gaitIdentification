@@ -159,22 +159,16 @@ def display_activations(activation_maps):
     assert batch_size == 1, 'One image at a time to visualize.'
     for activation_map in range(0,len(activation_maps)):
         print('Displaying activation map {}'.format(activation_map))
-        shape = activation_map.shape
+        shape = np.shape(activation_maps[activation_map])
         if len(shape) == 4:
             activations = np.hstack(np.transpose(activation_maps[activation_map][0], (2, 0, 1)))
         elif len(shape) == 2:
             # try to make it square as much as possible. we can skip some activations.
-            activations = activation_map[activation_map][0]
-            num_activations = len(activations)
-            if num_activations > 1024:  # too hard to display it on the screen.
-                square_param = int(np.floor(np.sqrt(num_activations)))
-                activations = activations[0: square_param * square_param]
-                activations = np.reshape(activations, (square_param, square_param))
-            else:
-                activations = np.expand_dims(activations, axis=0)
+            activations = activation_maps[activation_map]
         else:
             activations = np.squeeze(activation_maps[activation_map])
             #raise Exception('len(shape) = 3 has not been implemented.')
+        plt.title('Activations')
         plt.imshow(activations)
         plt.show()
 
