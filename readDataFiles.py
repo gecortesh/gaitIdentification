@@ -242,3 +242,4 @@ def actualReading(filestoread):
                 allDataDict[files2Read[k][:-5]+"_"+exps[j]] = allData
                 allDataDict[files2Read[k][:-5]+"_"+exps[j]+"_time"] = timeAxis
     return allDataDict
+

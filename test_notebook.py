@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8   IMUs = {} -*-
 """
 Created on Thu Mar  8 11:08:18 2018
 
@@ -6,39 +6,28 @@ Created on Thu Mar  8 11:08:18 2018
 """
 import helpers
 from keras.models import Sequential
-from keras.utils import to_categorical
-from keras.layers import Conv1D, MaxPooling1D, Activation, Dropout, Flatten, Dense
-import numpy as np
+from keras.layers import Conv1D, MaxPooling1D, Activation, Flatten, Dense
+import matplotlib.pyplot as plt
 
-model_weights_path = "/home/gabych/Documents/gaitIdentification"
-all_data, labels, data, dataset, labels_dataset = helpers.dataAndLabels()
-train_x, train_y, test_x, test_y = helpers.splitData(dataset,labels_dataset)
+model_weights_path = "/home/gabych/Documents/gaitIdentification/weights_model"
+window_size = 400
+epochs =10
+batch_size = 20
 
-epochs = 30
-batch_size = 16
-window_size = 1500
-nb_samples, nb_series = dataset.shape
-input_shape = (1500,30) #check
+input_shape = (window_size,30) 
 
-train_data = helpers.dataSegmentation(train_x, window_size)
-train_labels= helpers.dataSegmentation(train_y, window_size)
-train_labels= train_labels.astype(int)-1
-u, indices = np.unique(train_labels, return_inverse=True)
-train_labels=u[np.argmax(np.apply_along_axis(np.bincount, 1, indices.reshape(train_labels.shape),None, np.max(indices)+ 1), axis=1)]
-train_labels_encoded = to_categorical(train_labels)
-test_data = helpers.dataSegmentation(test_x, window_size)
-test_labels= helpers.dataSegmentation(test_y, window_size)
-test_labels= test_labels.astype(int)-1
-u2, indices2 = np.unique(test_labels, return_inverse=True)
-test_labels=u2[np.argmax(np.apply_along_axis(np.bincount, 1, indices2.reshape(test_labels.shape),None, np.max(indices2)+ 1), axis=1)]
-test_labels_encoded = to_categorical(test_labels)
+train_data, train_labels_encoded, test_data, test_labels_encoded = helpers.trainAndTest(window_size)
+
 
 # model 2 conv. layers, 1 dense layer
 model = Sequential()  # linear stack of layer
-model.add(Conv1D(8,2, input_shape=input_shape))
+model.add(Conv1D(64,5, input_shape=input_shape))
 model.add(Activation('relu'))
 model.add(MaxPooling1D())
 
+model.add(Conv1D(20,2))
+model.add(Activation('relu'))
+model.add(MaxPooling1D())
 
 model.add(Conv1D(16,3))
 model.add(Activation('relu'))
@@ -47,7 +36,11 @@ model.add(MaxPooling1D())
 model.add(Flatten())
 model.add(Dense(3))  #32?
 model.add(Activation('softmax'))
+#model.add(Dropout(0.5))
+
+
 model.summary()
+
 
 # learning configuration
 model.compile(optimizer='rmsprop',  # or maybe ADAM check
@@ -55,8 +48,40 @@ model.compile(optimizer='rmsprop',  # or maybe ADAM check
               metrics=['accuracy'])
 
 # train
-model.fit(train_data, train_labels_encoded,
+history = model.fit(train_data, train_labels_encoded,
           epochs=epochs,
           batch_size=batch_size,
+          verbose=1,
           validation_data=(test_data,test_labels_encoded))
-model.save_weights(model_weights_path)
+          
+score = model.evaluate(test_data, test_labels_encoded, verbose=0)        
+print('Test loss:', score[0])
+print('Test accuracy:', score[1])
+
+## list all data in history
+#print(history.history.keys())
+## summarize history for accuracy
+#plt.plot(history.history['acc'])
+#plt.plot(history.history['val_acc'])
+#plt.title('model accuracy')
+#plt.text(5, 0.5, 'ws=300, ep=30, bs=20, conv64x5, conv20x2, conv16*3, dense')
+#plt.ylabel('accuracy')
+#plt.xlabel('epoch')
+#plt.legend(['train', 'test'], loc='upper left')
+#plt.show()
+          
+a = helpers.get_activations(model, test_data[0:1], print_shape_only=True)  # with just one sample.
+helpers.display_activations(a)
+
+
+#model.save_weights(model_weights_path)
+
+
+# summarize history for loss
+#plt.plot(history.history['loss'])
+#plt.plot(history.history['val_loss'])
+#plt.title('model loss')
+#plt.ylabel('loss')
+#plt.xlabel('epoch')
+#plt.legend(['train', 'test'], loc='upper left')
+#plt.show()
