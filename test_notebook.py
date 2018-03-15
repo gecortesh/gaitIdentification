@@ -16,6 +16,32 @@ batch_size = 20
 
 input_shape = (window_size,30) 
 
+all_data, labels, data, dataset, labels_dataset = helpers.dataAndLabels()
+helpers.plotImuData(dataset,"Left Shank")
+l_shank_g, l_shank_a, r_shank_g, r_shank_a, l_thigh_g, l_thing_a, r_thigh_g, r_thing_a, com_g, com_a = helpers.each_sensor_data(dataset)
+
+
+plt.figure()    
+measAx = ['X', 'Y', 'Z']        
+plt.subplot(2,3,1)
+plt.plot(l_shank_g[:,0], 'r', linewidth=1.5)
+plt.title('Angular Vel. along x [deg/s]')
+plt.subplot(2,3,2)
+plt.plot(l_shank_g[:,1], 'g', linewidth=1.5)
+plt.title('Angular Vel. along y [deg/s]')
+plt.subplot(2,3,3)
+plt.plot(l_shank_g[:,2], 'b', linewidth=1.5)
+plt.title('Angular Vel. along z [deg/s]')
+plt.xlabel('Time [ms]')
+plt.grid()
+#plt.title('Acc. along {} [g]'.format(measAx[i]))
+
+plt.suptitle(' IMU - Gyro (top) & Accelerometer (bottom) measurements')  
+
+
+
+
+
 train_data, train_labels_encoded, test_data, test_labels_encoded = helpers.trainAndTest(window_size)
 
 
@@ -70,7 +96,7 @@ print('Test accuracy:', score[1])
 #plt.legend(['train', 'test'], loc='upper left')
 #plt.show()
           
-a = helpers.get_activations(model, test_data[0:1], print_shape_only=True)  # with just one sample.
+a = helpers.get_activations(model, test_data[1:2], print_shape_only=True)  # with just one sample.
 helpers.display_activations(a)
 
 
