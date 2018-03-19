@@ -84,7 +84,7 @@ def dataAndLabels():
     return all_data_l, labels_l, data, dataset, labels_dataset
 
 def rollingWindow(a, window):
-    a.T    
+    a = a.T    
     shape = a.shape[:-1] + (a.shape[-1] - window + 1, window)
     strides = a.strides + (a.strides[-1],)
     windowedData = np.lib.stride_tricks.as_strided(a, shape=shape, strides=strides).T
@@ -203,9 +203,36 @@ def plotImuData(data, imu):
     plt.suptitle(imu + ' IMU - Gyro (top) & Accelerometer (bottom) measurements') 
     
 def factor_extraction(imu_data):
-    R_g = np.sqrt(np.square(imu_data[:,0]) + np.square(imu_data[:,1]) + np.square(imu_data[:,2]))
-    R_a = np.sqrt(np.square(imu_data[:,3]) + np.square(imu_data[:,4]) + np.square(imu_data[:,5]))
-    return R_g.reshape(len(R_g),1), R_a.reshape(len(R_a),1)
+    R_g_l_s = np.sqrt(np.square(imu_data[:,0]) + np.square(imu_data[:,1]) + np.square(imu_data[:,2]))
+   # R_g_l_s = R_g_l_s.reshape(len(R_g_l_s),1)
+    R_a_l_s = np.sqrt(np.square(imu_data[:,3]) + np.square(imu_data[:,4]) + np.square(imu_data[:,5]))
+    #R_a_l_s = R_a_l_s.reshape(len(R_a_l_s),1)
+    R_g_r_s = np.sqrt(np.square(imu_data[:,6]) + np.square(imu_data[:,7]) + np.square(imu_data[:,8]))
+    #R_g_r_s = R_g_r_s.reshape(len(R_g_r_s),1)
+    R_a_r_s = np.sqrt(np.square(imu_data[:,9]) + np.square(imu_data[:,10]) + np.square(imu_data[:,11]))
+    #R_a_r_s = R_a_r_s.reshape(len(R_a_r_s),1)
+    R_g_l_t = np.sqrt(np.square(imu_data[:,12]) + np.square(imu_data[:,13]) + np.square(imu_data[:,14]))
+    #R_g_l_t = R_g_l_t.reshape(len(R_g_l_t),1)
+    R_a_l_t = np.sqrt(np.square(imu_data[:,15]) + np.square(imu_data[:,16]) + np.square(imu_data[:,17]))
+    #R_a_l_t = R_a_l_t.reshape(len(R_a_l_t),1)
+    R_g_r_t = np.sqrt(np.square(imu_data[:,18]) + np.square(imu_data[:,19]) + np.square(imu_data[:,20]))
+    #R_g_r_t = R_g_r_t.reshape(len(R_g_r_t),1)
+    R_a_r_t = np.sqrt(np.square(imu_data[:,21]) + np.square(imu_data[:,22]) + np.square(imu_data[:,23]))
+    #R_a_r_t = R_a_r_t.reshape(len(R_a_r_t),1)
+    R_g_c = np.sqrt(np.square(imu_data[:,24]) + np.square(imu_data[:,25]) + np.square(imu_data[:,26]))
+    #R_g_c = R_g_c.reshape(len(R_g_c),1)
+    R_a_c = np.sqrt(np.square(imu_data[:,27]) + np.square(imu_data[:,28]) + np.square(imu_data[:,29]))
+    #R_a_c = R_a_c.reshape(len(R_a_c),1)  
+    return R_g_l_s, R_a_l_s, R_g_r_s, R_a_r_s, R_g_l_t, R_a_l_t, R_g_r_t, R_a_r_t, R_g_c, R_a_c
+    
+def factor_extraction2(imu_data):
+    R_a_l_s = np.sqrt(np.sqrt(np.square(imu_data[:,1]) + np.square(imu_data[:,2]) + np.square(imu_data[:,3])))
+    #R_a_l_s = R_a_l_s.reshape(len(R_a_l_s),1)    
+    R_a_l_t = np.sqrt(np.sqrt(np.square(imu_data[:,4]) + np.square(imu_data[:,5]) + np.square(imu_data[:,6])))
+    #R_a_l_t = R_a_l_t.reshape(len(R_a_l_t),1)        
+    R_a_c = np.sqrt(np.sqrt(np.square(imu_data[:,7]) + np.square(imu_data[:,8]) + np.square(imu_data[:,9])))
+    #R_a_c = R_a_c.reshape(len(R_a_c),1)
+    return R_a_l_s, R_a_l_t, R_a_c
     
 # to get numerator and denominator of the IIR filter 
 def butter_bandpass(lowcut, highcut, fs, order):
@@ -222,3 +249,110 @@ def butter_bandpass_filter(data, lowcut, highcut, fs, order):
     #y = filtfilt(b, a, data, padlen=0)
     #y_out = sosfiltfilt(sos,data)
     return y
+
+def load_data():
+    folder = r"/home/gabych/Documents/ETH/gaitIdentification/dataset_fog_release/dataset" 
+    files = glob.glob(folder+'/*txt')
+    for i in range(0, len(files)):
+        data_new = np.loadtxt(files[i], delimiter=" ", unpack=False)
+        trigger = np.where(data_new[:,10]==1)
+        data_uh = data_new[trigger]       
+    return data_uh
+    
+def normalization(data):
+    x = (data - np.mean(data)) / np.std(data)
+    return x
+    
+def slidingWindow(sequence,winSize,step=1):
+    """Returns a generator that will iterate through
+    the defined chunks of input sequence.  Input sequence
+    must be iterable."""
+    
+    # Verify the inputs
+    try: it = iter(sequence)
+    except TypeError:
+        raise Exception("**ERROR** sequence must be iterable.")
+    if not ((type(winSize) == type(0)) and (type(step) == type(0))):
+        raise Exception("**ERROR** type(winSize) and type(step) must be int.")
+    if step > winSize:
+        raise Exception("**ERROR** step must not be larger than winSize.")
+    if winSize > len(sequence):
+        raise Exception("**ERROR** winSize must not be larger than sequence length.")
+    
+    # Pre-compute number of chunks to emit
+    numOfChunks = ((len(sequence)-winSize)/step)+1
+    
+    # Do the work
+    for i in range(0,numOfChunks*step,step):
+        yield sequence[i:i+winSize]
+    
+def blabla():
+    data_uh = helpers.load_data()
+    #l_shank, r_shank, l_thigh, r_thigh, com = helpers.each_sensor_data(dataset)
+    R_g_l_s, R_a_l_s, R_g_r_s, R_a_r_s, R_g_l_t, R_a_l_t, R_g_r_t, R_a_r_t, R_g_c, R_a_c = helpers.factor_extraction(dataset)
+    R_a_l_s2, R_a_l_t2, R_a_c2 = helpers.factor_extraction2(data_uh)
+    
+    R_a_l_s = helpers.normalization(R_a_l_s)
+    R_a_l_t = helpers.normalization(R_a_l_t)
+    R_a_c = helpers.normalization(R_a_c)
+    R_a_l_s2 = helpers.normalization(R_a_l_s2)
+    R_a_l_t2 = helpers.normalization(R_a_l_t2)
+    R_a_c2 = helpers.normalization(R_a_c2)
+    
+    R_left_shank = np.concatenate((R_a_l_s,R_a_l_s2),axis=0)
+    R_left_thigh = np.concatenate((R_a_l_t,R_a_l_t2),axis=0)
+    R_com = np.concatenate((R_a_c,R_a_c2),axis=0)
+    
+    labels_ls = np.ones((len(R_left_shank),), dtype=int)
+    labels_ls[419320:] = labels_ls[419320:]*2
+    labels_lt = np.ones((len(R_left_thigh),), dtype=int)
+    labels_lt[419320:] = labels_lt[419320:]*2
+    labels_c = np.ones((len(R_com),), dtype=int)
+    labels_c[419320:] = labels_c[419320:]*2
+    
+    train_test_split = np.random.rand(len(R_left_shank)) < 0.70
+    train_x_ls = R_left_shank[train_test_split]
+    train_x_lt = R_left_thigh[train_test_split]
+    train_x_c = R_com[train_test_split]
+    train_y = labels_ls[train_test_split]
+    test_x_ls = R_left_shank[~train_test_split]
+    test_x_lt = R_left_thigh[~train_test_split]
+    test_x_c = R_com[~train_test_split]
+    test_y = labels_ls[~train_test_split]
+    
+    #train_x_ls, train_y_ls, test_x_ls, test_y_ls = helpers.splitData(R_left_shank,labels_ls)
+    #train_x_lt, train_y_lt, test_x_lt, test_y_lt = helpers.splitData(R_left_thigh,labels_lt)
+    #train_x_c, train_y_c, test_x_c, test_y_c = helpers.splitData(R_com,labels_c)
+    
+    window_size= (140,)
+    step = 20
+    
+    train_data_ls_window = view_as_windows(train_x_ls, window_size, step)
+    train_data_ls_window = train_data_ls_window.reshape(train_data_ls_window.shape[0],train_data_ls_window.shape[1],1)
+    
+    test_data_ls_window = view_as_windows(test_x_ls, window_size, step)
+    test_data_ls_window = test_data_ls_window.reshape(test_data_ls_window.shape[0], test_data_ls_window.shape[1],1)
+    
+    train_data_lt_window = view_as_windows(train_x_lt, window_size, step)
+    train_data_lt_window = train_data_lt_window.reshape(train_data_lt_window.shape[0],train_data_lt_window.shape[1],1)
+    
+    test_data_lt_window = view_as_windows(test_x_lt, window_size, step)
+    test_data_lt_window = test_data_lt_window.reshape(test_data_lt_window.shape[0],test_data_lt_window.shape[1],1)
+    
+    train_data_c_window = view_as_windows(train_x_c, window_size, step)
+    train_data_c_window = train_data_c_window.reshape(train_data_c_window.shape[0],train_data_c_window.shape[1],1)
+    
+    test_data_c_window = view_as_windows(test_x_c, window_size, step)
+    test_data_c_window = test_data_c_window.reshape(test_data_c_window.shape[0],test_data_c_window.shape[1],1)
+    
+    train_labels = view_as_windows(train_y, window_size, step)
+    train_labels= train_labels.astype(int)-1
+    u, indices = np.unique(train_labels, return_inverse=True)
+    train_labels=u[np.argmax(np.apply_along_axis(np.bincount, 1, indices.reshape(train_labels.shape),None, np.max(indices)+ 1), axis=1)]
+    train_labels_encoded = to_categorical(train_labels)
+    
+    test_labels = view_as_windows(test_y, window_size, step)
+    test_labels= test_labels.astype(int)-1
+    ut, indicest = np.unique(test_labels, return_inverse=True)
+    test_labels=ut[np.argmax(np.apply_along_axis(np.bincount, 1, indicest.reshape(test_labels.shape),None, np.max(indicest)+ 1), axis=1)]
+    test_labels_encoded = to_categorical(test_labels)

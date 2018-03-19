@@ -5,18 +5,69 @@ Created on Wed Mar 14 16:55:15 2018
 @author: gabych
 """
 
-import helpers
-import matplotlib.pyplot as plt
-#from scipy.signal import freqz
-#import numpy as np
+#import matplotlib.pyplot as plt
+#from skimage.util.shape import view_as_windows
+import numpy as np
+import keras
+from keras.models import Model #, Sequential
+from keras.layers import Conv1D, MaxPooling1D, Flatten, Dense, Input
 
-#all_data_l, labels_l, data, dataset, labels_dataset = helpers.dataAndLabels()
-#l_shank, r_shank, l_thigh, r_thigh, com = helpers.each_sensor_data(dataset)
-#R_g_l_s, R_a_l_s = helpers.factor_extraction(l_shank)
-#R_g_r_s, R_a_r_s = helpers.factor_extraction(r_shank)
-#R_g_l_t, R_a_l_t = helpers.factor_extraction(l_thigh)
-#R_g_r_t, R_a_r_t = helpers.factor_extraction(r_thigh)
-#R_g_c, R_a_c = helpers.factor_extraction(com)
+train_data_ls_window = np.load('train_data_ls_window.npy')
+train_data_lt_window = np.load('train_data_lt_window.npy')
+train_data_c_window = np.load('train_data_c_window.npy')
+test_data_ls_window = np.load('test_data_ls_window.npy')
+test_data_lt_window = np.load('test_data_lt_window.npy')
+test_data_c_window = np.load('test_data_c_window.npy')
+train_labels_encoded = np.load('train_labels_encoded.npy')
+test_labels_encoded = np.load('test_labels_encoded.npy')
+
+epochs =10
+batch_size = 20
+input_shape = (140,1)
+
+#parallel ip for different sections of image
+inp1 = Input(shape=train_data_ls_window.shape[1:])
+inp2 = Input(shape=train_data_lt_window.shape[1:])
+inp3 = Input(shape=train_data_c_window.shape[1:])
+
+# paralle conv and pool layer which process each section of input independently
+conv1 = Conv1D(8, 5, activation='relu')(inp1)
+conv2 = Conv1D(8, 5, activation='relu')(inp2)
+conv3 = Conv1D(8,5, activation='relu')(inp3)
+
+maxp1 = MaxPooling1D(pool_size=2)(conv1)
+maxp2 =MaxPooling1D(pool_size=2)(conv2)
+maxp3 =MaxPooling1D(pool_size=2)(conv3)
+
+conv4 = Conv1D(4, 5, activation='relu')(maxp1)
+conv5 = Conv1D(4, 5, activation='relu')(maxp2)
+conv6 = Conv1D(4,5, activation='relu')(maxp3)
+
+maxp4 = MaxPooling1D(pool_size=2)(conv4)
+maxp5 =MaxPooling1D(pool_size=2)(conv5)
+maxp6 =MaxPooling1D(pool_size=2)(conv6)
+
+# can add multiple parallel conv, pool layes to reduce size
+
+flt1 = Flatten()(maxp4)
+flt2 = Flatten()(maxp5)
+flt3 = Flatten()(maxp6)
+
+mrg = keras.layers.concatenate([flt1,flt2,flt3])
+
+dense = Dense(723, activation='relu')(mrg)
+
+op = Dense(1, activation='softmax')(dense)
+
+model = Model(input=[inp1, inp2, inp3], output=op)
+model.summary()
+model.compile(optimizer='rmsprop',
+              loss='binary_crossentropy',
+              metrics=['accuracy'])
+              
+history = model.fit([train_data_ls_window,train_data_lt_window,train_data_c_window], train_labels_encoded,  epochs=10, batch_size=28)       
+
+
 
 #plt.figure()       
 #plt.subplot(2,1,1)
@@ -80,14 +131,16 @@ import matplotlib.pyplot as plt
 #plt.legend(loc='upper left')
 
 
-plt.figure(2)
-[x,y,z]  = plt.plot(r_shank[0:00,3:6])
-plt.legend([x,y,z],['x','y','z'], loc='upper left')
-plt.title('right shank acc')
-plt.show()
-
-plt.figure(3)
-[x2,y2,z2]  = plt.plot(r_shank[450:650,3:6])
-plt.legend([x2,y2,z2],['x','y','z'], loc='upper left')
-plt.title('left shank acc')
-plt.show()
+#plt.figure(2)
+#plt.plot(data_uh)
+##plt.plot(R_a_l_s2[0:1500])
+##plt.legend([x,y,z],['x','y','z'], loc='upper left')
+#plt.title('left shank acc unhealthy')
+#plt.show()
+#
+#plt.figure(3)
+#plt.plot(R_a_l_s[0:1500])
+##[x2,y2,z2]  = plt.plot(R_a_l_s[0:1500])
+##plt.legend([x2,y2,z2],['x','y','z'], loc='upper left')
+#plt.title('left shank acc healthy')
+#plt.show()
