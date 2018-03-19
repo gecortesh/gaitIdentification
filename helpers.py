@@ -10,6 +10,7 @@ import numpy as np
 from keras.utils import to_categorical
 from keras import backend as K
 import matplotlib.pyplot as plt
+from scipy.signal import butter, lfilter, sosfilt, sosfiltfilt, filtfilt
 
 def splitData(dataset,labels_dataset):
 
@@ -206,5 +207,18 @@ def factor_extraction(imu_data):
     R_a = np.sqrt(np.square(imu_data[:,3]) + np.square(imu_data[:,4]) + np.square(imu_data[:,5]))
     return R_g.reshape(len(R_g),1), R_a.reshape(len(R_a),1)
     
-    
-
+# to get numerator and denominator of the IIR filter 
+def butter_bandpass(lowcut, highcut, fs, order):
+    nyq = 0.5 * fs
+    low = lowcut / nyq
+    high = highcut / nyq
+    b, a = butter(order, [low, high], btype='bandpass', output ='ba')
+    #sos = butter(order, [low,high], analog='False', btype='band', output='sos')
+    return b,a
+   
+def butter_bandpass_filter(data, lowcut, highcut, fs, order):
+    b, a = butter_bandpass(lowcut, highcut, fs, order=order)
+    y = lfilter(b, a, data)
+    #y = filtfilt(b, a, data, padlen=0)
+    #y_out = sosfiltfilt(sos,data)
+    return y
