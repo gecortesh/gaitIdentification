@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Spyder Editor
+Created on Mon Apr  2 10:21:11 2018
 
-This is a temporary script file.
+@author: gabych
 """
 import c3d
 import math
@@ -12,11 +12,13 @@ import matplotlib.animation as animation
 from mpl_toolkits.mplot3d import Axes3D
 from numpy import linalg as LA
 
+# reading data from vicon
 reader = c3d.Reader(open('/home/gabych/Documents/ETH/gaitIdentification/Vicon/Kai/Level.c3d','rb'))
 points = []  # 13 markers, 5 values (x,y,z, residual value, cameras value)
 for i, point, analog in reader.read_frames():
     points.append(point)
-#  
+
+# saving markers coordinates for visualiztion per frame  
 #[L_TRC, R_TRC, COM, R_KNE, R_UIM, L_KNE, L_UIM, L_ANK, L_LIM, R_ANK, R_LIM, R_MT5, L_MT5]  
 x = np.zeros((87500,13,1))
 y = np.zeros((87500,13,1))
@@ -27,6 +29,7 @@ for p in range(0,len(points)):
         y[p][j][:]=points[p][j][1]
         z[p][j][:]=points[p][j][2]
 
+# saving markers coordinates per element for joint angle calculation
 L_TRC = []
 R_TRC = []
 C_TRC = []
@@ -58,27 +61,8 @@ for p in range(0,len(points)):
     R_MT5.append(points[p][11][0:3])
     L_MT5.append(points[p][12][0:3])
         
-        
-#fig = plt.figure()
-#ax = fig.add_subplot(111, projection='3d')
-#ax.scatter(x[104000:104013],y[104000:104013],z[104000:104013])
-#ax.set_xlabel('X Label')
-#ax.set_ylabel('Y Label')
-#ax.set_zlabel('Z Label')
 
-
-
-
-#hip_center = ((x[104000]+x[104001])/2, (z[104000]+z[104001])/2)
-#thigh = (x[104004],y[104004],z[104004])
-#knee = (x[104003],y[104003],z[104003])
-#shank = (x[104010],y[104010],z[104010])
-#plt.scatter(hip_center[0],hip_center[1])
-#plt.scatter(thigh[0],thigh[2],)
-#plt.scatter(knee[0],knee[2])
-#plt.scatter(shank[0],shank[2])
-
-
+# joint angle calculation
 a_r_knee_angle = []
 a_l_knee_angle = []
 b_r_knee_angle = []
@@ -106,25 +90,6 @@ for l in range(0,len(R_KNE)):
     l_hip_angle.append(l_thigh_angle[l]-trunk_angle[l])
     
 
-
-
-#k_angle= math.acos(np.dot(p1,p2)/np.dot(LA.norm(p1),LA.norm(p2)))
-    #    rk_angle = math.acos(np.dot(R_UIM[l],R_LIM[l])/np.dot(LA.norm(R_UIM[l]),LA.norm(R_LIM[l])))
-#    rk_angle = math.atan2(LA.norm(np.cross(R_UIM[l],R_LIM[l])),np.dot(R_UIM[l],R_LIM[l]))
-#plt.plot(r_knee_angle)
-#plt.plot(l_knee_angle[:1000])
-#plt.plot(r_hip_angle[:1000])
-#plt.plot(l_hip_angle[:1000])
-
-#plt.scatter(y[0:13], z[0:13])
-#plt.scatter(R_UIM[0][0], R_UIM[0][2])
-#plt.scatter(R_KNE[0][0], R_KNE[0][2])
-#plt.scatter(R_LIM[0][0], R_LIM[0][2])
-#plt.scatter(R_UIM[0][0]-R_KNE[0][0], R_UIM[0][2]-R_KNE[0][2])
-#plt.scatter(R_LIM[0][0]-R_KNE[0][0], R_LIM[0][2]-R_KNE[0][2])
-#plt.xlim((-1000, 1000))
-#
-#plt.show()
 
 # Animation 
 def animate(i):
