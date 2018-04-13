@@ -11,6 +11,7 @@ from keras.utils import to_categorical
 from keras import backend as K
 import matplotlib.pyplot as plt
 from scipy.signal import butter, lfilter, sosfilt, sosfiltfilt, filtfilt
+import dataAndLabels
 
 def splitData(dataset,labels_dataset):
 
@@ -25,7 +26,7 @@ def splitData(dataset,labels_dataset):
     return train_x, train_y, test_x, test_y
 
 
-def dataAndLabels():
+def dataAndLabelslevel():
 
     dataPath = glob.glob('/home/gabych/Documents/ETH/gaitIdentification/data/Balgrist_20170508/first/*.csv')
     files2Read = list(set([dataPath[f][75:len(dataPath[f])-6] for f in range(0,len(dataPath))]))
@@ -84,21 +85,21 @@ def dataAndLabels():
     return all_data_l, labels_l, data, dataset, labels_dataset
 
 def rollingWindow(a, window):
-    a = a.T    
+    a = a.T
     shape = a.shape[:-1] + (a.shape[-1] - window + 1, window)
     strides = a.strides + (a.strides[-1],)
     windowedData = np.lib.stride_tricks.as_strided(a, shape=shape, strides=strides).T
-    print("Data size: {0}, Window size: {1}".format(a.shape, window))       
+    print("Data size: {0}, Window size: {1}".format(a.shape, window))
     return windowedData
-    
+
 def dataSegmentation(data, window_size):
     x_data = data[:(len(data)-(len(data) % window_size))]
     batches = x_data.reshape(-1, window_size, data.shape[1])
     return batches
-    
+
 # divide train and test data
 def trainAndTest(window_size):
-    all_data, labels, data, dataset, labels_dataset = dataAndLabels()
+    all_data, labels, data, dataset, labels_dataset = dataAndLabels.dataAndLabels()
     train_x, train_y, test_x, test_y = splitData(dataset,labels_dataset)
     train_data = dataSegmentation(train_x, window_size)
     train_labels= dataSegmentation(train_y, window_size)
@@ -113,7 +114,7 @@ def trainAndTest(window_size):
     test_labels=u2[np.argmax(np.apply_along_axis(np.bincount, 1, indices2.reshape(test_labels.shape),None, np.max(indices2)+ 1), axis=1)]
     test_labels_encoded = to_categorical(test_labels)
     return train_data, train_labels_encoded, test_data, test_labels_encoded
-    
+
 # extracting data per sensor per device (acc, gyro)
 def each_sensor_data(all_data):
     l_shank = all_data[:,0:6]
@@ -122,7 +123,7 @@ def each_sensor_data(all_data):
     r_thigh = all_data[:,18:24]
     com = all_data[:,24:30]
     return l_shank, r_shank, l_thigh, r_thigh, com
-    
+
 # to visualize the activation function of a layer as in https://github.com/philipperemy/keras-visualize-activations
 def get_activations(model, model_inputs, print_shape_only=False, layer_name=None):
     print('----- activations -----')
@@ -188,8 +189,8 @@ def display_activations(activation_maps):
         plt.show()
 
 def plotImuData(data, imu):
-    plt.figure()    
-    measAx = ['X', 'Y', 'Z', 'X', 'Y', 'Z']        
+    plt.figure()
+    measAx = ['X', 'Y', 'Z', 'X', 'Y', 'Z']
     for i in range(0, 6):
         plt.subplot(2,3,i+1)
         plt.plot(data[:100,i+3], 'r', linewidth=1.5)
@@ -200,8 +201,8 @@ def plotImuData(data, imu):
             plt.title('Acc. along {} [g]'.format(measAx[i]))
         else:
             plt.title('Angular Vel. along {} [deg/s]'.format(measAx[i]))
-    plt.suptitle(imu + ' IMU - Gyro (top) & Accelerometer (bottom) measurements') 
-    
+    plt.suptitle(imu + ' IMU - Gyro (top) & Accelerometer (bottom) measurements')
+
 def factor_extraction(imu_data):
     R_g_l_s = np.sqrt(np.square(imu_data[:,0]) + np.square(imu_data[:,1]) + np.square(imu_data[:,2]))
    # R_g_l_s = R_g_l_s.reshape(len(R_g_l_s),1)
@@ -222,19 +223,19 @@ def factor_extraction(imu_data):
     R_g_c = np.sqrt(np.square(imu_data[:,24]) + np.square(imu_data[:,25]) + np.square(imu_data[:,26]))
     #R_g_c = R_g_c.reshape(len(R_g_c),1)
     R_a_c = np.sqrt(np.square(imu_data[:,27]) + np.square(imu_data[:,28]) + np.square(imu_data[:,29]))
-    #R_a_c = R_a_c.reshape(len(R_a_c),1)  
+    #R_a_c = R_a_c.reshape(len(R_a_c),1)
     return R_g_l_s, R_a_l_s, R_g_r_s, R_a_r_s, R_g_l_t, R_a_l_t, R_g_r_t, R_a_r_t, R_g_c, R_a_c
-    
+
 def factor_extraction2(imu_data):
     R_a_l_s = np.sqrt(np.sqrt(np.square(imu_data[:,1]) + np.square(imu_data[:,2]) + np.square(imu_data[:,3])))
-    #R_a_l_s = R_a_l_s.reshape(len(R_a_l_s),1)    
+    #R_a_l_s = R_a_l_s.reshape(len(R_a_l_s),1)
     R_a_l_t = np.sqrt(np.sqrt(np.square(imu_data[:,4]) + np.square(imu_data[:,5]) + np.square(imu_data[:,6])))
-    #R_a_l_t = R_a_l_t.reshape(len(R_a_l_t),1)        
+    #R_a_l_t = R_a_l_t.reshape(len(R_a_l_t),1)
     R_a_c = np.sqrt(np.sqrt(np.square(imu_data[:,7]) + np.square(imu_data[:,8]) + np.square(imu_data[:,9])))
     #R_a_c = R_a_c.reshape(len(R_a_c),1)
     return R_a_l_s, R_a_l_t, R_a_c
-    
-# to get numerator and denominator of the IIR filter 
+
+# to get numerator and denominator of the IIR filter
 def butter_bandpass(lowcut, highcut, fs, order):
     nyq = 0.5 * fs
     low = lowcut / nyq
@@ -242,7 +243,7 @@ def butter_bandpass(lowcut, highcut, fs, order):
     b, a = butter(order, [low, high], btype='bandpass', output ='ba')
     #sos = butter(order, [low,high], analog='False', btype='band', output='sos')
     return b,a
-   
+
 def butter_bandpass_filter(data, lowcut, highcut, fs, order):
     b, a = butter_bandpass(lowcut, highcut, fs, order=order)
     y = lfilter(b, a, data)
@@ -251,23 +252,27 @@ def butter_bandpass_filter(data, lowcut, highcut, fs, order):
     return y
 
 def load_data():
-    folder = r"/home/gabych/Documents/ETH/gaitIdentification/dataset_fog_release/dataset" 
+    folder = r"/home/gabych/Documents/ETH/gaitIdentification/dataset_fog_release/dataset"
     files = glob.glob(folder+'/*txt')
     for i in range(0, len(files)):
         data_new = np.loadtxt(files[i], delimiter=" ", unpack=False)
-        trigger = np.where(data_new[:,10]==1)
-        data_uh = data_new[trigger]       
+        trigger = np.where(data_new[:,10]!=0)
+        data_uh = data_new[trigger]
     return data_uh
-    
-def normalization(data):
+
+def standarization(data):
     x = (data - np.mean(data)) / np.std(data)
     return x
-    
+
+def normalization(data):
+    x = (data - np.min(data)) / (np.max(data)-np.min(data))
+    return x
+
 def slidingWindow(sequence,winSize,step=1):
     """Returns a generator that will iterate through
     the defined chunks of input sequence.  Input sequence
     must be iterable."""
-    
+
     # Verify the inputs
     try: it = iter(sequence)
     except TypeError:
@@ -278,38 +283,38 @@ def slidingWindow(sequence,winSize,step=1):
         raise Exception("**ERROR** step must not be larger than winSize.")
     if winSize > len(sequence):
         raise Exception("**ERROR** winSize must not be larger than sequence length.")
-    
+
     # Pre-compute number of chunks to emit
     numOfChunks = ((len(sequence)-winSize)/step)+1
-    
+
     # Do the work
     for i in range(0,numOfChunks*step,step):
         yield sequence[i:i+winSize]
-    
+
 def blabla():
     data_uh = helpers.load_data()
     #l_shank, r_shank, l_thigh, r_thigh, com = helpers.each_sensor_data(dataset)
     R_g_l_s, R_a_l_s, R_g_r_s, R_a_r_s, R_g_l_t, R_a_l_t, R_g_r_t, R_a_r_t, R_g_c, R_a_c = helpers.factor_extraction(dataset)
     R_a_l_s2, R_a_l_t2, R_a_c2 = helpers.factor_extraction2(data_uh)
-    
+
     R_a_l_s = helpers.normalization(R_a_l_s)
     R_a_l_t = helpers.normalization(R_a_l_t)
     R_a_c = helpers.normalization(R_a_c)
     R_a_l_s2 = helpers.normalization(R_a_l_s2)
     R_a_l_t2 = helpers.normalization(R_a_l_t2)
     R_a_c2 = helpers.normalization(R_a_c2)
-    
+
     R_left_shank = np.concatenate((R_a_l_s,R_a_l_s2),axis=0)
     R_left_thigh = np.concatenate((R_a_l_t,R_a_l_t2),axis=0)
     R_com = np.concatenate((R_a_c,R_a_c2),axis=0)
-    
+
     labels_ls = np.ones((len(R_left_shank),), dtype=int)
     labels_ls[419320:] = labels_ls[419320:]*2
     labels_lt = np.ones((len(R_left_thigh),), dtype=int)
     labels_lt[419320:] = labels_lt[419320:]*2
     labels_c = np.ones((len(R_com),), dtype=int)
     labels_c[419320:] = labels_c[419320:]*2
-    
+
     train_test_split = np.random.rand(len(R_left_shank)) < 0.70
     train_x_ls = R_left_shank[train_test_split]
     train_x_lt = R_left_thigh[train_test_split]
@@ -319,40 +324,62 @@ def blabla():
     test_x_lt = R_left_thigh[~train_test_split]
     test_x_c = R_com[~train_test_split]
     test_y = labels_ls[~train_test_split]
-    
+
     #train_x_ls, train_y_ls, test_x_ls, test_y_ls = helpers.splitData(R_left_shank,labels_ls)
     #train_x_lt, train_y_lt, test_x_lt, test_y_lt = helpers.splitData(R_left_thigh,labels_lt)
     #train_x_c, train_y_c, test_x_c, test_y_c = helpers.splitData(R_com,labels_c)
-    
+
     window_size= (140,)
     step = 20
-    
+
     train_data_ls_window = view_as_windows(train_x_ls, window_size, step)
     train_data_ls_window = train_data_ls_window.reshape(train_data_ls_window.shape[0],train_data_ls_window.shape[1],1)
-    
+
     test_data_ls_window = view_as_windows(test_x_ls, window_size, step)
     test_data_ls_window = test_data_ls_window.reshape(test_data_ls_window.shape[0], test_data_ls_window.shape[1],1)
-    
+
     train_data_lt_window = view_as_windows(train_x_lt, window_size, step)
     train_data_lt_window = train_data_lt_window.reshape(train_data_lt_window.shape[0],train_data_lt_window.shape[1],1)
-    
+
     test_data_lt_window = view_as_windows(test_x_lt, window_size, step)
     test_data_lt_window = test_data_lt_window.reshape(test_data_lt_window.shape[0],test_data_lt_window.shape[1],1)
-    
+
     train_data_c_window = view_as_windows(train_x_c, window_size, step)
     train_data_c_window = train_data_c_window.reshape(train_data_c_window.shape[0],train_data_c_window.shape[1],1)
-    
+
     test_data_c_window = view_as_windows(test_x_c, window_size, step)
     test_data_c_window = test_data_c_window.reshape(test_data_c_window.shape[0],test_data_c_window.shape[1],1)
-    
+
     train_labels = view_as_windows(train_y, window_size, step)
     train_labels= train_labels.astype(int)-1
     u, indices = np.unique(train_labels, return_inverse=True)
     train_labels=u[np.argmax(np.apply_along_axis(np.bincount, 1, indices.reshape(train_labels.shape),None, np.max(indices)+ 1), axis=1)]
     train_labels_encoded = to_categorical(train_labels)
-    
+
     test_labels = view_as_windows(test_y, window_size, step)
     test_labels= test_labels.astype(int)-1
     ut, indicest = np.unique(test_labels, return_inverse=True)
     test_labels=ut[np.argmax(np.apply_along_axis(np.bincount, 1, indicest.reshape(test_labels.shape),None, np.max(indicest)+ 1), axis=1)]
     test_labels_encoded = to_categorical(test_labels)
+    
+def butter_highpass(cutoff, fs, order):
+    nyq = 0.5 * fs
+    normal_cutoff = highcut / nyq
+    b, a = butter(order, normal_cutoff, btype='highpass', output ='ba', analog=False)
+    return b,a
+
+def butter_highpass_filter(data, cutoff, fs, order):
+    b, a = butter_highpass(cutoff, fs, order=order)
+    y = filtfilt(b, a, data)
+    return y
+
+def butter_lowpass(cutoff, fs, order):
+    nyq = 0.5 * fs
+    normal_cutoff = cutoff / nyq
+    b, a = butter(order, normal_cutoff, btype='lowpass', output ='ba', analog=False)
+    return b,a
+
+def butter_lowpass_filter(data, cutoff, fs, order):
+    b, a = butter_lowpass(cutoff, fs, order=order)
+    y = filtfilt(b, a, data)
+    return y
