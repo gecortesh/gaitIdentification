@@ -10,66 +10,126 @@ import matplotlib.pyplot as plt
 import numpy as np
 import keras
 from keras.models import Model #, Sequential
-from keras.layers import Conv1D, MaxPooling1D, Flatten, Dense, Input
+from keras.layers import Conv1D, MaxPooling1D, Flatten, Dense, Input, Dropout
 
-train_data_ls_window = np.load('train_data_ls_window.npy')
-train_data_lt_window = np.load('train_data_lt_window.npy')
-train_data_c_window = np.load('train_data_c_window.npy')
-test_data_ls_window = np.load('test_data_ls_window.npy')
-test_data_lt_window = np.load('test_data_lt_window.npy')
-test_data_c_window = np.load('test_data_c_window.npy')
-train_labels_encoded = np.load('train_labels_encoded.npy')
-test_labels_encoded = np.load('test_labels_encoded.npy')
+train_x_ls = np.load('train_x_ls.npy')
+train_y_ls = np.load('train_y_ls.npy')
+train_z_ls = np.load('train_z_ls.npy')
+test_x_ls = np.load('test_x_ls.npy')
+test_y_ls = np.load('test_y_ls.npy')
+test_z_ls = np.load('test_z_ls.npy')
+
+train_x_lt = np.load('train_x_lt.npy')
+train_y_lt = np.load('train_y_lt.npy')
+train_z_lt = np.load('train_z_lt.npy')
+test_x_lt = np.load('test_x_lt.npy')
+test_y_lt = np.load('test_y_lt.npy')
+test_z_lt = np.load('test_z_lt.npy')
+
+train_x_c = np.load('train_x_c.npy')
+train_y_c = np.load('train_y_c.npy')
+train_z_c = np.load('train_z_c.npy')
+test_x_c = np.load('test_x_c.npy')
+test_y_c = np.load('test_y_c.npy')
+test_z_c = np.load('test_z_c.npy')
+
 train_labels = np.load('train_labels.npy')
 test_labels = np.load('test_labels.npy')
 
 epochs =10
-batch_size = 20
-input_shape = (400,1)
+batch_size = 28
+input_shape = (256,1)
 
 #parallel ip for different sections of image
-inp1 = Input(shape=train_data_ls_window.shape[1:])
-inp2 = Input(shape=train_data_lt_window.shape[1:])
-inp3 = Input(shape=train_data_c_window.shape[1:])
+inp1 = Input(shape=train_x_ls.shape[1:])
+inp2 = Input(shape=train_y_ls.shape[1:])
+inp3 = Input(shape=train_z_ls.shape[1:])
+
+inp4 = Input(shape=train_x_lt.shape[1:])
+inp5 = Input(shape=train_y_lt.shape[1:])
+inp6 = Input(shape=train_z_lt.shape[1:])
+
+inp7 = Input(shape=train_x_c.shape[1:])
+inp8 = Input(shape=train_y_c.shape[1:])
+inp9 = Input(shape=train_z_c.shape[1:])
 
 # paralle conv and pool layer which process each section of input independently
 conv1 = Conv1D(8, 5, activation='relu')(inp1)
 conv2 = Conv1D(8, 5, activation='relu')(inp2)
 conv3 = Conv1D(8,5, activation='relu')(inp3)
 
+conv4 = Conv1D(8, 5, activation='relu')(inp4)
+conv5 = Conv1D(8, 5, activation='relu')(inp5)
+conv6 = Conv1D(8,5, activation='relu')(inp6)
+
+conv7 = Conv1D(8, 5, activation='relu')(inp7)
+conv8 = Conv1D(8, 5, activation='relu')(inp8)
+conv9 = Conv1D(8,5, activation='relu')(inp9)
+
 maxp1 = MaxPooling1D(pool_size=2)(conv1)
 maxp2 =MaxPooling1D(pool_size=2)(conv2)
 maxp3 =MaxPooling1D(pool_size=2)(conv3)
-
-conv4 = Conv1D(4, 5, activation='relu')(maxp1)
-conv5 = Conv1D(4, 5, activation='relu')(maxp2)
-conv6 = Conv1D(4,5, activation='relu')(maxp3)
 
 maxp4 = MaxPooling1D(pool_size=2)(conv4)
 maxp5 =MaxPooling1D(pool_size=2)(conv5)
 maxp6 =MaxPooling1D(pool_size=2)(conv6)
 
+maxp7 = MaxPooling1D(pool_size=2)(conv7)
+maxp8 =MaxPooling1D(pool_size=2)(conv8)
+maxp9 =MaxPooling1D(pool_size=2)(conv9)
+
+conv10 = Conv1D(4, 5, activation='relu')(maxp1)
+conv11 = Conv1D(4, 5, activation='relu')(maxp2)
+conv12 = Conv1D(4,5, activation='relu')(maxp3)
+
+conv13 = Conv1D(4, 5, activation='relu')(maxp4)
+conv14 = Conv1D(4, 5, activation='relu')(maxp5)
+conv15 = Conv1D(4,5, activation='relu')(maxp6)
+
+conv16 = Conv1D(4, 5, activation='relu')(maxp7)
+conv17 = Conv1D(4, 5, activation='relu')(maxp8)
+conv18 = Conv1D(4,5, activation='relu')(maxp9)
+
+maxp10 = MaxPooling1D(pool_size=2)(conv10)
+maxp11 =MaxPooling1D(pool_size=2)(conv11)
+maxp12 =MaxPooling1D(pool_size=2)(conv12)
+
+maxp13 = MaxPooling1D(pool_size=2)(conv13)
+maxp14 =MaxPooling1D(pool_size=2)(conv14)
+maxp15 =MaxPooling1D(pool_size=2)(conv15)
+
+maxp16 = MaxPooling1D(pool_size=2)(conv16)
+maxp17 =MaxPooling1D(pool_size=2)(conv17)
+maxp18 =MaxPooling1D(pool_size=2)(conv18)
+
 # can add multiple parallel conv, pool layes to reduce size
+flt1 = Flatten()(maxp10)
+flt2 = Flatten()(maxp11)
+flt3 = Flatten()(maxp12)
 
-flt1 = Flatten()(maxp4)
-flt2 = Flatten()(maxp5)
-flt3 = Flatten()(maxp6)
+flt4 = Flatten()(maxp13)
+flt5 = Flatten()(maxp14)
+flt6 = Flatten()(maxp15)
 
-mrg = keras.layers.concatenate([flt1,flt2,flt3])
+flt7 = Flatten()(maxp16)
+flt8 = Flatten()(maxp17)
+flt9 = Flatten()(maxp18)
+
+mrg = keras.layers.concatenate([flt1,flt2,flt3,flt4,flt5,flt6,flt7,flt8,flt9])
 
 dense = Dense(723, activation='relu')(mrg)
 
 op = Dense(1, activation='softmax')(dense)
 
-model = Model(input=[inp1, inp2, inp3], output=op)
+model = Model(input=[inp1, inp2, inp3, inp4, inp5, inp6, inp7, inp8, inp9], output=op)
 model.summary()
 model.compile(optimizer='rmsprop',
               loss='binary_crossentropy',
               metrics=['accuracy'])
               
-history = model.fit([train_data_ls_window,train_data_lt_window,train_data_c_window], train_labels,  epochs=epochs, batch_size=batch_size, verbose=1,
-          validation_data=([test_data_ls_window,test_data_lt_window,test_data_c_window],test_labels))       
-score = model.evaluate([test_data_ls_window,test_data_lt_window,test_data_c_window], test_labels, verbose=0)        
+history = model.fit([train_x_ls,train_y_ls,train_z_ls, train_x_lt,train_y_lt,train_z_lt, train_x_c,train_y_c,train_z_c], train_labels,  epochs=epochs, batch_size=batch_size, verbose=1,
+          validation_data=([test_x_ls,test_y_ls,test_z_ls, test_x_lt,test_y_lt,test_z_lt, test_x_c,test_y_c,test_z_c],test_labels))       
+score = model.evaluate([test_x_ls,test_y_ls,test_z_ls, test_x_lt,test_y_lt,test_z_lt, test_x_c,test_y_c,test_z_c], test_labels, verbose=0)        
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
 
