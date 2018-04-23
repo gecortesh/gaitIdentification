@@ -364,7 +364,7 @@ def blabla():
     
 def butter_highpass(cutoff, fs, order):
     nyq = 0.5 * fs
-    normal_cutoff = highcut / nyq
+    normal_cutoff = cutoff / nyq
     b, a = butter(order, normal_cutoff, btype='highpass', output ='ba', analog=False)
     return b,a
 
