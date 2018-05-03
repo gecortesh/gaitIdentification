@@ -298,7 +298,7 @@ def cyclogram (a1, a2):
     plt.show()
 
 # feature vector calculation per gait cycle
-def feature_vector(experiment, subject):
+def feature_vector(experiment, subject,w, h):
     vgrf, points =  read_file(experiment, subject)
     a_r_knee_angle, a_l_knee_angle, r_hip_angle, l_hip_angle, r_ankle_angle, l_ankle_angle, trunk_angle = kinematics(points)
     full_gait_cycle = gait_cycles(vgrf)
@@ -318,6 +318,32 @@ def feature_vector(experiment, subject):
         r_ankle_rom[g] = np.max(r_ankle_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])-np.min(r_ankle_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])
         l_ankle_rom[g] = np.max(l_ankle_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])-np.min(l_ankle_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])
         trunk_rom[g] = np.max(trunk_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])-np.min(trunk_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])
+    weight = np.ones((len(r_knee_rom),1))*w
+    height = np.ones((len(r_knee_rom),1))*h
+    x = np.hstack([r_knee_rom, l_knee_rom, r_hip_rom, l_hip_rom, trunk_rom, r_ankle_rom, l_ankle_rom, weight, height])
+    return  x
+
+def feature_vector_angles(experiment, subject):
+    vgrf, points =  read_file(experiment, subject)
+    a_r_knee_angle, a_l_knee_angle, r_hip_angle, l_hip_angle, r_ankle_angle, l_ankle_angle, trunk_angle = kinematics(points)
+    full_gait_cycle = gait_cycles(vgrf)
+    r_knee_rom = np.zeros((len(full_gait_cycle)-1,1))
+    l_knee_rom = np.zeros((len(full_gait_cycle)-1,1))
+    r_hip_rom = np.zeros((len(full_gait_cycle)-1,1))
+    l_hip_rom = np.zeros((len(full_gait_cycle)-1,1))
+    r_ankle_rom = np.zeros((len(full_gait_cycle)-1,1))
+    l_ankle_rom = np.zeros((len(full_gait_cycle)-1,1))
+    trunk_rom = np.zeros((len(full_gait_cycle)-1,1))
+    
+    for g in range (0,len(full_gait_cycle)-1):
+        r_knee_rom[g] = np.max(a_r_knee_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])-np.min(a_r_knee_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])
+        l_knee_rom[g] = np.max(a_l_knee_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])-np.min(a_l_knee_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])
+        r_hip_rom[g] = np.max(r_hip_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])-np.min(r_hip_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])
+        l_hip_rom[g] = np.max(l_hip_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])-np.min(l_hip_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])
+        r_ankle_rom[g] = np.max(r_ankle_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])-np.min(r_ankle_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])
+        l_ankle_rom[g] = np.max(l_ankle_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])-np.min(l_ankle_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])
+        trunk_rom[g] = np.max(trunk_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])-np.min(trunk_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])
+
     x = np.hstack([r_knee_rom, l_knee_rom, r_hip_rom, l_hip_rom, trunk_rom, r_ankle_rom, l_ankle_rom])
     return  x
 
@@ -326,3 +352,43 @@ def y_vector( experiment, subject, s):
     full_gait_cycle = gait_cycles(vgrf)
     y = np.ones(len(full_gait_cycle)-1)*s
     return y
+
+def feature_clustering(experiment, subject, angle):
+    vgrf, points =  read_file(experiment, subject)
+    a_r_knee_angle, a_l_knee_angle, r_hip_angle, l_hip_angle, r_ankle_angle, l_ankle_angle, trunk_angle = kinematics(points)
+    full_gait_cycle = gait_cycles(vgrf)
+    r_knee_rom = np.zeros((len(full_gait_cycle)-1,1))
+    l_knee_rom = np.zeros((len(full_gait_cycle)-1,1))
+    r_hip_rom = np.zeros((len(full_gait_cycle)-1,1))
+    l_hip_rom = np.zeros((len(full_gait_cycle)-1,1))
+    r_ankle_rom = np.zeros((len(full_gait_cycle)-1,1))
+    l_ankle_rom = np.zeros((len(full_gait_cycle)-1,1))
+    trunk_rom = np.zeros((len(full_gait_cycle)-1,1))
+    
+    for g in range (0,len(full_gait_cycle)-1):
+        r_knee_rom[g] = np.max(a_r_knee_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])-np.min(a_r_knee_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])
+        l_knee_rom[g] = np.max(a_l_knee_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])-np.min(a_l_knee_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])
+        r_hip_rom[g] = np.max(r_hip_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])-np.min(r_hip_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])
+        l_hip_rom[g] = np.max(l_hip_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])-np.min(l_hip_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])
+        r_ankle_rom[g] = np.max(r_ankle_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])-np.min(r_ankle_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])
+        l_ankle_rom[g] = np.max(l_ankle_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])-np.min(l_ankle_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])
+        trunk_rom[g] = np.max(trunk_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])-np.min(trunk_angle[full_gait_cycle[g]:full_gait_cycle[g+1]])
+        
+    if angle == 'right knee':
+        joint_angle = a_r_knee_angle
+    elif angle == 'left knee':
+        joint_angle = a_l_knee_angle
+    elif angle == 'right hip':
+        joint_angle = r_hip_angle
+    elif angle == 'left hip':
+        joint_angle = l_hip_angle
+    elif angle == 'trunk':
+        joint_angle = trunk_angle
+    elif angle == 'right ankle':
+        joint_angle = r_ankle_angle
+    elif angle == 'left ankle':
+        joint_angle = l_ankle_angle
+    else:
+        joint_angle = a_l_knee_angle
+    return joint_angle
+        
