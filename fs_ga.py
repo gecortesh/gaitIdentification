@@ -11,18 +11,22 @@ from sklearn import svm
 import vicon_reader
 from sklearn.model_selection import cross_val_score, KFold, train_test_split
 
+# variable initit
 clf, x, y = svm_clf()
 pop_size = 100
-generations = 1
+generations = 100
 pop = population(pop_size, x.shape[1])
+crossover_rate = 0.70 # best results between 0.65-.85
+mutation_rate = 0.001
 
+# main loop0
 for g in range(0,generations):
     fitnesses = population_fitness(pop, x, y, clf)
     elite = elitism(fitnesses)
     pop[0] = pop[elite]
     y[0]= y[elite]
-
-
+    pop = crossover_pop(pop, fitnesses, crossover_rate)
+    pop = mutate_pop(pop, mutation_rate)
 
 # initial popultation 
 def population(n_indviduals, size):
@@ -58,14 +62,37 @@ def tournament_selection(population, fitnesses):
     return winner
     
 # crossover method is random point 
-def crossover(population):
-    parent1 = np.random.randint(0,len(population))
-    parent2 = np.random.randint(0,len(population))
+def crossover(pop, fitnesses):
+    parent1 = tournament_selection(pop, fitnesses)
+    parent2 = tournament_selection(pop, fitnesses)
     child = np.zeros(np.shape(parent1))
-    crossover_point = np.rnp.random.randint(0, parent1.shape[1])
+    crossover_point = np.random.randint(0, len(parent1))
     child[:crossover_point] = parent1[:crossover_point]
     child[crossover_point:] = parent2[crossover_point:]
     return child
+
+# apply crossover in all population
+def crossover_pop(pop, fitnesses, crossover_rate):
+    for i in range(1,len(pop)):
+        if np.random.random() <= crossover_rate:
+            pop[i] = crossover(pop,fitnesses)
+    return pop
+
+# single point mutation
+def mutation(individual):
+    point = np.random.randint(0, len(individual))
+    if individual[point] == 1:
+        individual[point] = 0
+    else:
+        individual[point] = 1
+    return individual
+
+# apply mutation over all population
+def mutate_pop(pop, mutation_rate):
+    for i in range(1,len(pop)):
+        if np.random.random() <= mutation_rate:
+            pop[i] = mutation(pop[i])
+    return pop
 
 # elitism is to save the indivual with the best performance to the next generation
 def elitism(fitnesses):
