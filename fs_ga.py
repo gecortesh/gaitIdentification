@@ -14,7 +14,7 @@ from sklearn.model_selection import cross_val_score, KFold, train_test_split
 # variable initit
 clf, x, y = svm_clf()
 pop_size = 100
-generations = 3
+generations = 100
 pop = population(pop_size, x.shape[1])
 crossover_rate = 0.70 # best results between 0.65-.85
 mutation_rate = 0.001
@@ -31,7 +31,7 @@ for g in range(0,generations):
     elite_g[g,:] = pop[elite]
     pop = crossover_pop(pop, fitnesses, crossover_rate)
     pop = mutate_pop(pop, mutation_rate)
-    mean_fitness[g] = np.mean(fitnesses)
+    mean_fitness_g[g] = np.mean(fitnesses)
     median_fitness_g[g] =  np.median(fitnesses)
     
 np.save('median_fit',median_fitness_g)
