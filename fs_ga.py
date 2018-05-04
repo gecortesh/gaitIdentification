@@ -9,7 +9,7 @@ Created on Wed May  2 17:16:22 2018
 import numpy as np
 from sklearn import svm
 import vicon_reader
-from sklearn.model_selection import cross_val_score, KFold, train_test_split
+from sklearn.model_selection import cross_val_score, KFold
 
 # initial popultation 
 def population(n_indviduals, size):
@@ -105,7 +105,7 @@ def svm_clf():
 # variable initit
 clf, x, y = svm_clf()
 pop_size = 100
-generations = 100
+generations = 30
 pop = population(pop_size, x.shape[1])
 crossover_rate = 0.70 # best results between 0.65-.85
 mutation_rate = 0.001
