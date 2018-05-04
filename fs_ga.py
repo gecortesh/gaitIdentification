@@ -11,32 +11,6 @@ from sklearn import svm
 import vicon_reader
 from sklearn.model_selection import cross_val_score, KFold, train_test_split
 
-# variable initit
-clf, x, y = svm_clf()
-pop_size = 100
-generations = 100
-pop = population(pop_size, x.shape[1])
-crossover_rate = 0.70 # best results between 0.65-.85
-mutation_rate = 0.001
-mean_fitness_g = np.zeros((generations,1))
-median_fitness_g = np.zeros((generations,1))
-elite_g =  np.ones((generations,x.shape[1]))
-
-# main loop0
-for g in range(0,generations):
-    fitnesses = population_fitness(pop, x, y, clf)
-    elite = elitism(fitnesses)
-    pop[0] = pop[elite]
-    y[0]= y[elite]
-    elite_g[g,:] = pop[elite]
-    pop = crossover_pop(pop, fitnesses, crossover_rate)
-    pop = mutate_pop(pop, mutation_rate)
-    mean_fitness_g[g] = np.mean(fitnesses)
-    median_fitness_g[g] =  np.median(fitnesses)
-    
-np.save('median_fit',median_fitness_g)
-np.save('mean_fit',mean_fitness_g)
-
 # initial popultation 
 def population(n_indviduals, size):
     population = np.zeros((n_indviduals,size))
@@ -126,3 +100,30 @@ def svm_clf():
     # classifier
     clf = svm.SVC(kernel='rbf', decision_function_shape='ovo')
     return clf, x, y
+
+
+# variable initit
+clf, x, y = svm_clf()
+pop_size = 100
+generations = 100
+pop = population(pop_size, x.shape[1])
+crossover_rate = 0.70 # best results between 0.65-.85
+mutation_rate = 0.001
+mean_fitness_g = np.zeros((generations,1))
+median_fitness_g = np.zeros((generations,1))
+elite_g =  np.ones((generations,x.shape[1]))
+
+# main loop0
+for g in range(0,generations):
+    fitnesses = population_fitness(pop, x, y, clf)
+    elite = elitism(fitnesses)
+    pop[0] = pop[elite]
+    y[0]= y[elite]
+    elite_g[g,:] = pop[elite]
+    pop = crossover_pop(pop, fitnesses, crossover_rate)
+    pop = mutate_pop(pop, mutation_rate)
+    mean_fitness_g[g] = np.mean(fitnesses)
+    median_fitness_g[g] =  np.median(fitnesses)
+    
+np.save('median_fit',median_fitness_g)
+np.save('mean_fit',mean_fitness_g)
