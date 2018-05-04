@@ -20,7 +20,7 @@ crossover_rate = 0.70 # best results between 0.65-.85
 mutation_rate = 0.001
 mean_fitness_g = np.zeros((generations,1))
 median_fitness_g = np.zeros((generations,1))
-elite_g =  np.zeros((generations,x.shape[1]))
+elite_g =  np.ones((generations,x.shape[1]))
 
 # main loop0
 for g in range(0,generations):
