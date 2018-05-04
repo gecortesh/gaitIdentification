@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.lines import Line2D   
-import helpers
+from scipy.signal import butter, filtfilt
 
 # reading data from vicon, return coordinates x,y,z
 def read_file(experiment, subject):
@@ -172,7 +172,7 @@ def segments_anim(points):
 # gait cycles from grf
 def gait_cycles(vgrf):
     Fz1, Fz2 = kinetics(vgrf)
-    Fz_l = helpers.butter_lowpass_filter(Fz1,40.0,1000.0,4)
+    Fz_l = butter_lowpass_filter(Fz1,40.0,1000.0,4)
     Fz_l[np.where(Fz_l<=10)] = 0
     step_valleys = np.asarray(np.where(Fz_l==0))
     step_points_init = step_valleys[:,np.where(np.diff(step_valleys)>=100)[1]]
@@ -180,7 +180,7 @@ def gait_cycles(vgrf):
     step_points_end = step_valleys[:,np.where(np.diff(step_valleys)>=100)[1]+1]
     step_points_end  = np.insert(step_points_end,np.shape(step_points_end)[1],step_valleys[0][-1])
     
-    Fz_r= helpers.butter_lowpass_filter(([x*(-1) for x in Fz2]),40.0,1000.0,4)
+    Fz_r= butter_lowpass_filter(([x*(-1) for x in Fz2]),40.0,1000.0,4)
     Fz_r[np.where(Fz_r<=10)] = 0
     step_valleys_r = np.asarray(np.where(Fz_r==0))
     step_points_init_r = step_valleys_r[:,np.where(np.diff(step_valleys_r)>=100)[1]]
@@ -391,4 +391,15 @@ def feature_clustering(experiment, subject, angle):
     else:
         joint_angle = a_l_knee_angle
     return joint_angle
-        
+
+def butter_lowpass(cutoff, fs, order):
+    nyq = 0.5 * fs
+    normal_cutoff = cutoff / nyq
+    b, a = butter(order, normal_cutoff, btype='lowpass', output ='ba', analog=False)
+    return b,a
+
+def butter_lowpass_filter(data, cutoff, fs, order):
+    b, a = butter_lowpass(cutoff, fs, order=order)
+    y = filtfilt(b, a, data)
+    return y
+
