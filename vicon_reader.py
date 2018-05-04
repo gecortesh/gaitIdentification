@@ -14,7 +14,7 @@ import helpers
 # reading data from vicon, return coordinates x,y,z
 def read_file(experiment, subject):
     #reader = c3d.Reader(open('/home/gabych/Documents/ETH/gaitIdentification/Vicon/'+ subject +'/'+ experiment +'.c3d','rb'))
-    reader = c3d.Reader(open('/home/gabych/Documents/ETH/gaitIdentification/Subjects/data/Subjects/'+ subject +'/'+ experiment +'.c3d','rb'))
+    reader = c3d.Reader(open('/cluster/home/corteshg/Subjects/'+ subject +'/'+ experiment +'.c3d','rb'))
     points = []  # 13 markers, 5 values (x,y,z, residual value(estimate of the error for this particular point), cameras value(number of cameras that observed the point))
     vgrf = [] # vertical ground reaction force
     for i, point, analog in reader.read_frames():
