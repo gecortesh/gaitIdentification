@@ -125,5 +125,6 @@ with Pool(processes=4) as pool:
         pop = mutate_pop(pop, mutation_rate)
         mean_fitness_g[g] = np.mean(fitnesses)
         median_fitness_g[g] =  np.median(fitnesses) 
-        np.save('median_fit',median_fitness_g)
-        np.save('mean_fit',mean_fitness_g)
+        np.save('median_fit_g',median_fitness_g)
+        np.save('mean_fit_g',mean_fitness_g)
+        np.save('elite_g',elite_g)
