@@ -24,13 +24,13 @@ def read_file(experiment, subject):
 
 # saving markers coordinates for visualiztion per frame 
 def markers_xyz(points):  
-    x = np.zeros((len(points),len(points[0]),1))
-    y = np.zeros((len(points),len(points[0]),1))
-    z = np.zeros((len(points),len(points[0]),1))
+    x = np.zeros((len(points),13,1))
+    y = np.zeros((len(points),13,1))
+    z = np.zeros((len(points),13,1))
     for p in range(0,len(points)):
-        for j in range(0,len(points[0])):
+        for j in range(0,13):
             x[p][j][:]=points[p][j][0]
-            y[p][j][:]=points[p][j][1]
+            y[p][j][:]=-1*points[p][j][1]
             z[p][j][:]=points[p][j][2]
     return x,y,z
         
@@ -123,17 +123,17 @@ def kinematics(points):
     
     # angle calculation in sagital plane (l-left, r-right)
     for l in range(0,len(R_KNE)):
-        l_shank_angle[l] = (np.rad2deg(np.arctan2((L_KNE[l][2]-L_ANK[l][2]), (-1*(L_KNE[l][1]-L_ANK[l][1])))) + 360) % 360 # % (2 * np.pi)
-        r_shank_angle[l] = (np.rad2deg(np.arctan2((R_KNE[l][2]-R_ANK[l][2]), (-1*(R_KNE[l][1]-R_ANK[l][1])))) + 360) % 360
-        r_shank_angle_v[l] = (np.rad2deg(np.arctan2((R_ANK[l][2]-R_KNE[l][2]),(-1*(R_ANK[l][1]-R_KNE[l][1])))) + 360) % 360
-        l_shank_angle_v[l] = (np.rad2deg(np.arctan2((L_ANK[l][2]-L_KNE[l][2]),(-1*(L_ANK[l][1]-L_KNE[l][1])))) + 360) % 360
-        l_thigh_angle[l] = (np.rad2deg(np.arctan2((L_TRC[l][2]-L_KNE[l][2]), (-1*(L_TRC[l][1]-L_KNE[l][1])))) + 360) % 360
-        r_thigh_angle[l] = (np.rad2deg(np.arctan2((R_TRC[l][2]-R_KNE[l][2]), (-1*(R_TRC[l][1]-R_KNE[l][1])))) + 360) % 360
-        l_thigh_angle_v[l] = (np.rad2deg(np.arctan2((L_KNE[l][2]-L_TRC[l][2]), (-1*(L_KNE[l][1]-L_TRC[l][1])))) + 360) % 360
-        r_thigh_angle_v[l] = (np.rad2deg(np.arctan2((R_KNE[l][2]-R_TRC[l][2]), (-1*(R_KNE[l][1]-R_TRC[l][1])))) + 360) % 360
-        trunk_angle[l] = (np.rad2deg(np.arctan2((COM[l][2]-C_TRC[l][2]),(-1*(COM[l][1]-C_TRC[l][1])))) + 360) % 360  
-        r_foot_angle[l] = (np.rad2deg(np.arctan2((R_ANK[l][2]-R_MT5[l][2]),(-1*(R_ANK[l][1]-R_MT5[l][1])))) + 360) % 360
-        l_foot_angle[l] = (np.rad2deg(np.arctan2((L_ANK[l][2]-L_MT5[l][2]),(-1*(L_ANK[l][1]-L_MT5[l][1])))) + 360) % 360
+        l_shank_angle[l] = np.rad2deg(np.arctan2((L_KNE[l][2]-L_ANK[l][2]), (-1*(L_KNE[l][1]-L_ANK[l][1])))) #+ 360) % 360 # % (2 * np.pi)
+        r_shank_angle[l] = np.rad2deg(np.arctan2((R_KNE[l][2]-R_ANK[l][2]), (-1*(R_KNE[l][1]-R_ANK[l][1])))) 
+        r_shank_angle_v[l] = np.rad2deg(np.arctan2((R_ANK[l][2]-R_KNE[l][2]),(-1*(R_ANK[l][1]-R_KNE[l][1]))))
+        l_shank_angle_v[l] = np.rad2deg(np.arctan2((L_ANK[l][2]-L_KNE[l][2]),(-1*(L_ANK[l][1]-L_KNE[l][1])))) #+ 360) % 360
+        l_thigh_angle[l] = np.rad2deg(np.arctan2((L_TRC[l][2]-L_KNE[l][2]), (-1*(L_TRC[l][1]-L_KNE[l][1])))) #+ 360) % 360
+        r_thigh_angle[l] = np.rad2deg(np.arctan2((R_TRC[l][2]-R_KNE[l][2]), (-1*(R_TRC[l][1]-R_KNE[l][1])))) 
+        l_thigh_angle_v[l] = np.rad2deg(np.arctan2((L_KNE[l][2]-L_TRC[l][2]), (-1*(L_KNE[l][1]-L_TRC[l][1]))))# + 360) % 360
+        r_thigh_angle_v[l] = np.rad2deg(np.arctan2((R_KNE[l][2]-R_TRC[l][2]), (-1*(R_KNE[l][1]-R_TRC[l][1]))))# + 360) % 360
+        trunk_angle[l] = np.rad2deg(np.arctan2((COM[l][2]-C_TRC[l][2]),(-1*(COM[l][1]-C_TRC[l][1])))) #+ 360) % 360  
+        r_foot_angle[l] = np.rad2deg(np.arctan2((R_ANK[l][2]-R_MT5[l][2]),(-1*(R_ANK[l][1]-R_MT5[l][1])))) #+ 360) % 360
+        l_foot_angle[l] = np.rad2deg(np.arctan2((L_ANK[l][2]-L_MT5[l][2]),(-1*(L_ANK[l][1]-L_MT5[l][1])))) #+ 360) % 360
         a_r_knee_angle[l] = (r_thigh_angle[l]-r_shank_angle[l])
         a_l_knee_angle[l] = (l_thigh_angle[l]-l_shank_angle[l])
         b_r_knee_angle[l] = (r_shank_angle[l]+(180-r_thigh_angle[l]))
@@ -151,20 +151,20 @@ def segments_anim(points):
     a_r_knee_angle, a_l_knee_angle, r_hip_angle, l_hip_angle, r_ankle_angle, l_ankle_angle, trunk_angle = kinematics(points)
     
     xc = np.array((COM[:,0],C_TRC[:,0], R_TRC[:,0], L_TRC[:,0])).T
-    yc = np.array((COM[:,1],C_TRC[:,1], R_TRC[:,1], L_TRC[:,1])).T
+    yc = -1*np.array((COM[:,1],C_TRC[:,1], R_TRC[:,1], L_TRC[:,1])).T
     zc = np.array((COM[:,2],C_TRC[:,2], R_TRC[:,2], L_TRC[:,2])).T
     
     xr = np.array((R_TRC[:,0], R_UIM[:,0], R_KNE[:,0], R_LIM[:,0], R_ANK[:,0], R_MT5[:,0])).T
-    yr = np.array((R_TRC[:,1], R_UIM[:,1], R_KNE[:,1], R_LIM[:,1], R_ANK[:,1], R_MT5[:,1])).T
+    yr = -1*np.array((R_TRC[:,1], R_UIM[:,1], R_KNE[:,1], R_LIM[:,1], R_ANK[:,1], R_MT5[:,1])).T
     zr = np.array((R_TRC[:,2], R_UIM[:,2], R_KNE[:,2], R_LIM[:,2], R_ANK[:,2], R_MT5[:,2])).T
     
     xl = np.array((L_TRC[:,0], L_UIM[:,0], L_KNE[:,0], L_LIM[:,0], L_ANK[:,0], L_MT5[:,0])).T
-    yl = np.array((L_TRC[:,1], L_UIM[:,1], L_KNE[:,1], L_LIM[:,1], L_ANK[:,1], L_MT5[:,1])).T
+    yl = -1*np.array((L_TRC[:,1], L_UIM[:,1], L_KNE[:,1], L_LIM[:,1], L_ANK[:,1], L_MT5[:,1])).T
     zl = np.array((L_TRC[:,2], L_UIM[:,2], L_KNE[:,2], L_LIM[:,2], L_ANK[:,2], L_MT5[:,2])).T
     
     # text
     xt = np.array((R_TRC[:,0], L_TRC[:,0], R_KNE[:,0], L_KNE[:,0], L_ANK[:,0], R_ANK[:,0], COM[:,0])).T
-    yt = np.array((R_TRC[:,1], L_TRC[:,1], R_KNE[:,1], L_KNE[:,1], L_ANK[:,1], R_ANK[:,1], COM[:,1])).T
+    yt = -1*np.array((R_TRC[:,1], L_TRC[:,1], R_KNE[:,1], L_KNE[:,1], L_ANK[:,1], R_ANK[:,1], COM[:,1])).T
     zt = np.array((R_TRC[:,2], L_TRC[:,2], R_KNE[:,2], L_KNE[:,2], L_ANK[:,2], R_ANK[:,2], COM[:,2])).T
     angles_text = np.array((r_hip_angle[:,0], l_hip_angle[:,0], a_r_knee_angle[:,0], a_l_knee_angle[:,0], l_ankle_angle[:,0], r_ankle_angle[:,0], trunk_angle[:,0])).T
     return xc, yc, zc, xr, yr, zr, xt, yt, zt, xl, yl, zl, angles_text   
@@ -179,6 +179,7 @@ def gait_cycles(vgrf):
     step_points_init = np.insert(step_points_init,0,step_valleys[0][0])
     step_points_end = step_valleys[:,np.where(np.diff(step_valleys)>=100)[1]+1]
     step_points_end  = np.insert(step_points_end,np.shape(step_points_end)[1],step_valleys[0][-1])
+    gait_cycle_l = np.sort(np.hstack((step_points_init,step_points_end)))
     
     Fz_r= butter_lowpass_filter(([x*(-1) for x in Fz2]),40.0,1000.0,4)
     Fz_r[np.where(Fz_r<=10)] = 0
@@ -187,19 +188,24 @@ def gait_cycles(vgrf):
     step_points_init_r = np.insert(step_points_init_r,0,step_valleys_r[0][0])
     step_points_end_r = step_valleys_r[:,np.where(np.diff(step_valleys_r)>=100)[1]+1]
     step_points_end_r = np.insert(step_points_end_r,np.shape(step_points_end_r)[1],step_valleys_r[0][-1])
-    
-    gait_cycles =  np.sort(np.hstack((step_points_init_r,step_points_end))) # first row init points 2nd row end points
-    full_gait_cycle = gait_cycles[np.where(np.diff(gait_cycles)>=100)]
+    gait_cycle_r = np.sort(np.hstack((step_points_init_r,step_points_end_r)))
+
+    gait_cycles =  np.sort(np.hstack(((gait_cycle_l,gait_cycle_r)))) # first row init points 2nd row end points
+    full_gait_cycle =  gait_cycles[0::4]
+
+    #full_gait_cycle = gait_cycles[np.where(np.diff(gait_cycles)>=50)]
     return full_gait_cycle
 
 # plot step vgrf with gait cycles points
-#fig0= plt.figure()
-#plt.plot(Fz1)
-#plt.plot(Fz_l)
-#plt.scatter(full_gait_cycle,np.zeros(len(full_gait_cycle)))
-#plt.scatter(gait_cycles2,np.zeros(len(gait_cycles2)))
+    fig0= plt.figure()
+    plt.plot(Fz1)
+    plt.plot(Fz2)
+    fzl, = plt.plot(Fz_l, 'r', label='left')
+    fzr, = plt.plot(Fz_r, 'b',  label='right')
+    plt.legend([fzl,fzr], ['Left', 'Right'])
+    plt.scatter(full_gait_cycle,np.zeros(len(full_gait_cycle)))
 
-def markers_animation(points, name):
+def markers_animation(points, name, save):
     xc, yc, zc, xr, yr, zr, xt, yt, zt, xl, yl, zl, angles_text = segments_anim(points)
     x,y,z = markers_xyz(points)
     # Animation 
@@ -222,6 +228,7 @@ def markers_animation(points, name):
         r_a_text.set_position((yt[i,5]+.8,zt[i,5]))
         t_text.set_text(np.array2string(angles_text[i,6]))
         t_text.set_position((yt[i,6]+.8,zt[i,6]))
+        print(i)
         return scat, line_c, line_r, line_l, h_r_text, h_l_text, r_k_text, l_k_text, l_a_text, r_a_text, t_text
         
     fig, ax =  plt.subplots()
@@ -241,13 +248,14 @@ def markers_animation(points, name):
     ax.add_line(line_r)
     ax.add_line(line_l)
     
-    anim = animation.FuncAnimation(fig, animate, interval=100)
+    anim = animation.FuncAnimation(fig, animate, interval=50)
     plt.draw()
     plt.show()
     
     # to save animation
-    FFwriter = animation.FFMpegWriter(fps=30, extra_args=['-vcodec', 'libx264'])
-    anim.save(name + ".mp4", writer=FFwriter)
+    if save == True:
+        FFwriter = animation.FFMpegWriter(fps=150, extra_args=['-vcodec', 'libx264'])
+        anim.save(name + ".mp4", writer=FFwriter)
 
 # plot joint angle "divided" in gait cycles
 def angle_gait(experiment, subject, angle):
@@ -271,8 +279,8 @@ def angle_gait(experiment, subject, angle):
     else:
         joint_angle = a_l_knee_angle
     
-    plt.plot(joint_angle)
     plt.title(angle)
+    plt.plot(joint_angle)
     for l in full_gait_cycle:
         plt.vlines(x=l, ymin=np.min(joint_angle), ymax=np.max(joint_angle))
     plt.show()
