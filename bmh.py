@@ -11,7 +11,6 @@ import fastdtw
 import c3d_test
 import btk
 import matplotlib.animation as animation
-from pyts.image import GASF, GADF
 import matplotlib.pyplot as plt
 
 def read_files(subject):
