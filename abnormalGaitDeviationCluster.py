@@ -9,7 +9,7 @@ Abnormal gait Deviation
 """
 import numpy as np
 import bmh
-import fuzzy_gait_improved
+import fuzzy_gait_improved2
 
 data_path = '/cluster/home/corteshg/gaitIdentification/joint_arrays/'
 
@@ -187,7 +187,7 @@ def get_phases(abnormalities, knee, hip):
             hip_s = hip[sample][dev]
             thigh_s = dev/len(knee[sample])
             time_s = dev/len(knee[sample])
-            phases[sample,dev] = fuzzy_gait_improved.detect_phase(knee_s, hip_s, thigh_s, time_s, visualize=False)
+            phases[sample,dev] = fuzzy_gait_improved2.detect_phase(knee_s, hip_s, thigh_s, time_s, visualize=False)
     return phases
 
 save_path = '/cluster/home/corteshg/gaitIdentification/phases_results/'

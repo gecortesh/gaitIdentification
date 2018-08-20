@@ -5,8 +5,8 @@ Created on Fri Jul  6 15:14:58 2018
 
 @author: gabych
 """
-import fastdtw
 import numpy as np
+import fastdtw
 
 outarr = np.load('outarr.npy')
 
