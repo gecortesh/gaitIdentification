@@ -188,7 +188,7 @@ def get_phases(abnormalities, knee, hip):
             thigh_s = dev/len(knee[sample])
             time_s = dev/len(knee[sample])
             phases[sample,dev] = fuzzy_gait_improved.detect_phase(knee_s, hip_s, thigh_s, time_s, visualize=False, mode='swst')
-    return phases
+    return np.round(phases)
 
 
 
@@ -223,7 +223,7 @@ np.save(save_path+'pc_rk_sci', pc_rk_sci)
 phases_rk_park = get_phases(abnormal_park_rk, r_knee_park, r_hip_park)
 np.save(save_path+'phases_rk_park', phases_rk_park)
 pc_rk_park = percentage(phases_rk_park)
-np.save(save_path+'pc_rk_ms', pc_rk_park)
+np.save(save_path+'pc_rk_park', pc_rk_park)
 
 
 phases_lk_md = get_phases(abnormal_md_lk, l_knee_md, l_hip_md)
