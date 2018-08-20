@@ -279,7 +279,7 @@ np.save(save_path+'pc_rk_ms', pc_rk_ms)
 pc_rk_sci = percentage(phases_rk_sci)
 np.save(save_path+'pc_rk_sci', pc_rk_sci)
 pc_rk_park = percentage(phases_rk_park)
-np.save(save_path+'pc_rk_ms', pc_rk_park)
+np.save(save_path+'pc_rk_park', pc_rk_park)
 
 pc_lk_md = percentage(phases_lk_md)
 np.save(save_path+'pc_lk_md', pc_lk_md)
