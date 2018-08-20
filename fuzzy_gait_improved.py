@@ -14,7 +14,7 @@ import numpy as np
 import skfuzzy as fuzz
 from skfuzzy import control as ctrl
 
-def detect_phase(knee_sample, hip_sample, thigh_sample, time_sample, visualize=False): #stage_sample
+def detect_phase(knee_sample, hip_sample, thigh_sample, time_sample, visualize=False, mode='all'): #stage_sample
 
     # New Antecedent/Consequent objects hold universe variables and membership
     # functions
@@ -23,7 +23,10 @@ def detect_phase(knee_sample, hip_sample, thigh_sample, time_sample, visualize=F
     x_th = ctrl.Antecedent(np.arange(0, 1.1, .1), 'thigh')
     x_t = ctrl.Antecedent(np.arange(0, 1.1, .1), 'time')
 #    x_s = ctrl.Antecedent(np.arange(0, 1.1, .1), 'stage')
-    phase = ctrl.Consequent(np.arange(0, 9, 1), 'phase')
+    if mode =='all':
+        phase = ctrl.Consequent(np.arange(0, 9, 1), 'phase')
+    else:
+        phase = ctrl.Consequent(np.arange(1, 3, 1), 'phase')
     
     # Custom membership functions 
     # movement intervals knee
@@ -51,14 +54,6 @@ def detect_phase(knee_sample, hip_sample, thigh_sample, time_sample, visualize=F
 #    x_s['S_MS'] = fuzz.gaussmf(x_s.universe, 0.208,0.05)
 #    x_s['S_SS'] = fuzz.smf(x_s.universe, 0.405,0.632)
 #    
-    # gait phases output
-    phase['LR'] = fuzz.trimf(phase.universe,[0,1,2])
-    phase['MSt'] = fuzz.trimf(phase.universe,[1,2,3])
-    phase['TSt'] = fuzz.trimf(phase.universe,[2,3,4])
-    phase['PSw'] = fuzz.trimf(phase.universe,[3,4,5])
-    phase['ISw'] = fuzz.trimf(phase.universe,[4,5,6])
-    phase['MSw'] = fuzz.trimf(phase.universe,[5,6,7])
-    phase['TSw'] = fuzz.trimf(phase.universe,[6,7,8])
     
     # rules for phase detection
 #    rule1 = ctrl.Rule(x_h['high'] & x_k['low'] & x_s['S_LR'] & x_t['low'], phase['LR'])
@@ -73,20 +68,45 @@ def detect_phase(knee_sample, hip_sample, thigh_sample, time_sample, visualize=F
 #    rule7 = ctrl.Rule(x_h['high'] & x_k['high']  & x_s['S_SS'] & x_t['high'], phase['MSw'])
 #    rule8 = ctrl.Rule(x_h['high'] & x_k['low'] & x_s['S_SS'] & x_t['high'], phase['TSw'])
     
-    rule1 = ctrl.Rule(x_h['high'] & x_k['low']  & x_t['low'], phase['LR'])
-    rule2 = ctrl.Rule(x_h['low'] | x_h['medium'] & x_k['low'] &  x_t['low'], phase['MSt'])
-    rule3 = ctrl.Rule(x_h['medium'] & x_k['low'] & x_t['low'] , phase['MSt'])
-    #rule4 = ctrl.Rule(x_h['low'] & x_k['low'] & x_t['medium'], phase['TSt'])
-    rule4 = ctrl.Rule(x_h['low'] & x_k['medium'] & x_t['medium'], phase['TSt'])
-    #rule5 = ctrl.Rule(x_h['low'] & x_k['high'] & x_s['S_SS'] & x_t['medium'], phase['PSw'])
-    rule5 = ctrl.Rule(x_h['low'] & x_k['high'] | x_k['medium'] &  x_t['medium'] & x_th['TO-HS'], phase['PSw'])
-    #rule6 = ctrl.Rule(x_h['medium'] & x_k['high'] & x_s['S_SS'] & x_t['medium'], phase['ISw'])
-    rule6 = ctrl.Rule(x_h['medium'] & x_k['high'] | x_k['medium'] & x_t['medium'] & x_th['TO-HS'], phase['ISw'])
-    rule7 = ctrl.Rule(x_h['high'] & x_k['high']  & x_t['high'] & x_th['TO-HS'], phase['MSw'])
-    rule8 = ctrl.Rule(x_h['high'] & x_k['low']  & x_t['high'] & x_th['TO-HS'], phase['TSw'])
-    
-    # control system
-    phase_ctrl = ctrl.ControlSystem([rule1, rule2, rule3, rule4, rule5, rule6, rule7, rule8])
+    if mode =='all':
+        
+        # gait phases output
+        phase['LR'] = fuzz.trimf(phase.universe,[0,1,2])
+        phase['MSt'] = fuzz.trimf(phase.universe,[1,2,3])
+        phase['TSt'] = fuzz.trimf(phase.universe,[2,3,4])
+        phase['PSw'] = fuzz.trimf(phase.universe,[3,4,5])
+        phase['ISw'] = fuzz.trimf(phase.universe,[4,5,6])
+        phase['MSw'] = fuzz.trimf(phase.universe,[5,6,7])
+        phase['TSw'] = fuzz.trimf(phase.universe,[6,7,8])
+        
+        rule1 = ctrl.Rule(x_h['high'] & x_k['low']  & x_t['low'], phase['LR'])
+        rule2 = ctrl.Rule(x_h['low'] | x_h['medium'] & x_k['low'] &  x_t['low'] , phase['MSt'])
+        rule3 = ctrl.Rule(x_h['medium'] & x_k['low'] & x_t['low'] , phase['MSt'])
+        #rule4 = ctrl.Rule(x_h['low'] & x_k['low'] & x_t['medium'], phase['TSt'])
+        rule4 = ctrl.Rule(x_h['low'] & x_k['medium'] & x_t['medium'], phase['TSt'])
+        #rule5 = ctrl.Rule(x_h['low'] & x_k['high'] & x_s['S_SS'] & x_t['medium'], phase['PSw'])
+        rule5 = ctrl.Rule(x_h['low'] & x_k['high'] | x_k['medium'] &  x_t['medium'] & x_th['TO-HS'], phase['PSw'])
+        #rule6 = ctrl.Rule(x_h['medium'] & x_k['high'] & x_s['S_SS'] & x_t['medium'], phase['ISw'])
+        rule6 = ctrl.Rule(x_h['medium'] & x_k['high'] | x_k['medium'] & x_t['medium'] & x_th['TO-HS'], phase['ISw'])
+        rule7 = ctrl.Rule(x_h['high'] & x_k['high']  & x_t['high'] & x_th['TO-HS'], phase['MSw'])
+        rule8 = ctrl.Rule(x_h['high'] & x_k['low']  & x_t['high'] & x_th['TO-HS'], phase['TSw'])
+        
+        # control system
+        phase_ctrl = ctrl.ControlSystem([rule1, rule2, rule3, rule4, rule5, rule6, rule7, rule8])
+            
+    else:
+        # gait phases output
+#        phase['SW'] = fuzz.gaussmf(phase.universe, 0.031, 0.019)
+#        phase['ST'] = fuzz.gaussmf(phase.universe, 0.489,0.032)   
+        phase['ST'] = fuzz.trimf(phase.universe,[1,1,2])
+        phase['SW'] = fuzz.trimf(phase.universe,[2,2,3])    
+        rule1 = ctrl.Rule(x_h['high'] &  x_k['low'] & x_t['low']| x_t['medium'] & ~x_th['TO-HS'], phase['ST'])
+        rule2 = ctrl.Rule(x_h['medium'] &  x_k['low'] & x_t['low'] | x_k['medium'] & ~x_th['TO-HS'], phase['ST'])
+        rule3 = ctrl.Rule(x_h['high'] | x_h['medium'] &  x_k['high'] & x_th['TO-HS'] & x_t['medium'] | x_t['high'], phase['SW'])
+        rule3 = ctrl.Rule(x_h['low'] &  x_k['high'] & x_th['TO-HS'] & x_t['medium'] | x_t['high'], phase['SW'])
+
+        # control system
+        phase_ctrl = ctrl.ControlSystem([rule1, rule2, rule3])
     
     # View membership function definition and rules
 #    x_k.view()
@@ -102,12 +122,18 @@ def detect_phase(knee_sample, hip_sample, thigh_sample, time_sample, visualize=F
     
     # Pass inputs to the ControlSystem using Antecedent labels
     # Note: if you like passing many inputs all at once, use .inputs(dict_of_data)
-    
-    detecting_phase.input['knee'] = float(knee_sample)
-    detecting_phase.input['hip'] = float(hip_sample)
-    detecting_phase.input['thigh'] = float(thigh_sample)
-    detecting_phase.input['time'] = float(time_sample)
+    if mode =='all':
+        detecting_phase.input['knee'] = float(knee_sample)
+        detecting_phase.input['hip'] = float(hip_sample)
+        detecting_phase.input['thigh'] = float(thigh_sample)
+        detecting_phase.input['time'] = float(time_sample)
 #    detecting_phase.input['stage'] = float(stage_sample)
+    else:
+        detecting_phase.input['hip'] = float(hip_sample)
+        detecting_phase.input['thigh'] = float(thigh_sample)
+        detecting_phase.input['knee'] = float(knee_sample)
+        detecting_phase.input['time'] = float(time_sample)
+
     
     # Crunch the numbers
     detecting_phase.compute()
@@ -118,3 +144,4 @@ def detect_phase(knee_sample, hip_sample, thigh_sample, time_sample, visualize=F
         phase.view(sim=detecting_phase)
 
     return detecting_phase.output['phase']
+
