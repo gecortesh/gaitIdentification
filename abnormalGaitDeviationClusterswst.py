@@ -179,10 +179,11 @@ abnormal_sci_tr = calculate_abnormalities(mean_ctrl_tr_th, std_ctrl_tr_th, dista
 abnormal_park_tr = calculate_abnormalities(mean_ctrl_tr_th, std_ctrl_tr_th, distances_park_tr)
 
 def get_phases(abnormalities, knee, hip):
-    phases = np.zeros(np.shape(abnormalities))
     if len(abnormalities) > len(knee):
+        phases = np.zeros(np.shape(knee))
         max_len = len(knee)
     else:
+        phases = np.zeros(np.shape(abnormalities))
         max_len = len(abnormalities)
     for sample in  range(max_len):
         deviations = np.where(abnormalities[sample]!=0)
