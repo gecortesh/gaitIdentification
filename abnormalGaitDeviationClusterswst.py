@@ -133,50 +133,57 @@ std_ctrl_la_th =  np.std(distances_ctrl_la,axis=0)
 mean_ctrl_tr_th =  np.mean(distances_ctrl_tr,axis=0)
 std_ctrl_tr_th =  np.std(distances_ctrl_tr,axis=0)
 
-
-
-def calculate_abnormalities(mean, std, distances):         
+def calculate_abnormalities(mean, std, distances, level=False):         
     abnormal = np.zeros(np.shape(distances))
+    diff_normal = np.zeros(np.shape(distances))
     for a in range(len(distances)):
         for b in range(len(distances[a])):
             if (distances[a][b] > mean[b]+std[b]) or (distances[a][b] < mean[b]-std[b]):
                 abnormal[a][b] = 1
-    return abnormal
+            if level:
+                if distances[a][b] < mean[b]-std[b]:
+                    diff_normal[a][b] = ((distances[a][b] - mean[b]-std[b])/mean[b]-std[b])*100
+                else:
+                    diff_normal[a][b] = ((distances[a][b] - mean[b]+std[b])/mean[b]+std[b])*100
+    if level:    
+        return abnormal, diff_normal
+    else:
+        return abnormal
             
-abnormal_md_rk = calculate_abnormalities(mean_ctrl_rk_th, std_ctrl_rk_th, distances_md_rk)
-abnormal_ms_rk = calculate_abnormalities(mean_ctrl_rk_th, std_ctrl_rk_th, distances_ms_rk)
-abnormal_sci_rk = calculate_abnormalities(mean_ctrl_rk_th, std_ctrl_rk_th, distances_sci_rk)
-abnormal_park_rk = calculate_abnormalities(mean_ctrl_rk_th, std_ctrl_rk_th, distances_park_rk)
+abnormal_md_rk, diff_md_rk = calculate_abnormalities(mean_ctrl_rk_th, std_ctrl_rk_th, distances_md_rk, level=True)
+abnormal_ms_rk, diff_ms_rk = calculate_abnormalities(mean_ctrl_rk_th, std_ctrl_rk_th, distances_ms_rk, level=True)
+abnormal_sci_rk, diff_sci_rk = calculate_abnormalities(mean_ctrl_rk_th, std_ctrl_rk_th, distances_sci_rk, level=True)
+abnormal_park_rk, diff_park_rk = calculate_abnormalities(mean_ctrl_rk_th, std_ctrl_rk_th, distances_park_rk, level=True)
 
-abnormal_md_lk = calculate_abnormalities(mean_ctrl_lk_th, std_ctrl_lk_th, distances_md_lk)
-abnormal_ms_lk = calculate_abnormalities(mean_ctrl_lk_th, std_ctrl_lk_th, distances_ms_lk)
-abnormal_sci_lk = calculate_abnormalities(mean_ctrl_lk_th, std_ctrl_lk_th, distances_sci_lk)
-abnormal_park_lk = calculate_abnormalities(mean_ctrl_lk_th, std_ctrl_lk_th, distances_park_lk)
+abnormal_md_lk, diff_md_lk = calculate_abnormalities(mean_ctrl_lk_th, std_ctrl_lk_th, distances_md_lk, level=True)
+abnormal_ms_lk, diff_ms_lk = calculate_abnormalities(mean_ctrl_lk_th, std_ctrl_lk_th, distances_ms_lk, level=True)
+abnormal_sci_lk, diff_sci_lk = calculate_abnormalities(mean_ctrl_lk_th, std_ctrl_lk_th, distances_sci_lk, level=True)
+abnormal_park_lk, diff_park_lk = calculate_abnormalities(mean_ctrl_lk_th, std_ctrl_lk_th, distances_park_lk, level=True)
 
-abnormal_md_rh = calculate_abnormalities(mean_ctrl_rh_th, std_ctrl_rh_th, distances_md_rh)
-abnormal_ms_rh = calculate_abnormalities(mean_ctrl_rh_th, std_ctrl_rh_th, distances_ms_rh)
-abnormal_sci_rh = calculate_abnormalities(mean_ctrl_rh_th, std_ctrl_rh_th, distances_sci_rh)
-abnormal_park_rh = calculate_abnormalities(mean_ctrl_rh_th, std_ctrl_rh_th, distances_park_rh)
+abnormal_md_rh, diff_md_rh = calculate_abnormalities(mean_ctrl_rh_th, std_ctrl_rh_th, distances_md_rh, level=True)
+abnormal_ms_rh, diff_ms_rh = calculate_abnormalities(mean_ctrl_rh_th, std_ctrl_rh_th, distances_ms_rh, level=True)
+abnormal_sci_rh, diff_sci_rh = calculate_abnormalities(mean_ctrl_rh_th, std_ctrl_rh_th, distances_sci_rh, level=True)
+abnormal_park_rh, diff_park_rh = calculate_abnormalities(mean_ctrl_rh_th, std_ctrl_rh_th, distances_park_rh, level=True)
 
-abnormal_md_lh = calculate_abnormalities(mean_ctrl_lh_th, std_ctrl_lh_th, distances_md_lh)
-abnormal_ms_lh = calculate_abnormalities(mean_ctrl_lh_th, std_ctrl_lh_th, distances_ms_lh)
-abnormal_sci_lh = calculate_abnormalities(mean_ctrl_lh_th, std_ctrl_lh_th, distances_sci_lh)
-abnormal_park_lh = calculate_abnormalities(mean_ctrl_lh_th, std_ctrl_lh_th, distances_park_lh)
+abnormal_md_lh, diff_md_lh = calculate_abnormalities(mean_ctrl_lh_th, std_ctrl_lh_th, distances_md_lh, level=True)
+abnormal_ms_lh, diff_ms_lh = calculate_abnormalities(mean_ctrl_lh_th, std_ctrl_lh_th, distances_ms_lh, level=True)
+abnormal_sci_lh, diff_sci_lh = calculate_abnormalities(mean_ctrl_lh_th, std_ctrl_lh_th, distances_sci_lh, level=True)
+abnormal_park_lh, diff_park_lh = calculate_abnormalities(mean_ctrl_lh_th, std_ctrl_lh_th, distances_park_lh, level=True)
 
-abnormal_md_ra = calculate_abnormalities(mean_ctrl_ra_th, std_ctrl_ra_th, distances_md_ra)
-abnormal_ms_ra = calculate_abnormalities(mean_ctrl_ra_th, std_ctrl_ra_th, distances_ms_ra)
-abnormal_sci_ra = calculate_abnormalities(mean_ctrl_ra_th, std_ctrl_ra_th, distances_sci_ra)
-abnormal_park_ra = calculate_abnormalities(mean_ctrl_ra_th, std_ctrl_ra_th, distances_park_ra)
+abnormal_md_ra, diff_md_ra = calculate_abnormalities(mean_ctrl_ra_th, std_ctrl_ra_th, distances_md_ra, level=True)
+abnormal_ms_ra, diff_ms_ra = calculate_abnormalities(mean_ctrl_ra_th, std_ctrl_ra_th, distances_ms_ra, level=True)
+abnormal_sci_ra, diff_sci_ra = calculate_abnormalities(mean_ctrl_ra_th, std_ctrl_ra_th, distances_sci_ra, level=True)
+abnormal_park_ra, diff_park_ra = calculate_abnormalities(mean_ctrl_ra_th, std_ctrl_ra_th, distances_park_ra, level=True)
 
-abnormal_md_la = calculate_abnormalities(mean_ctrl_la_th, std_ctrl_la_th, distances_md_la)
-abnormal_ms_la = calculate_abnormalities(mean_ctrl_la_th, std_ctrl_la_th, distances_ms_la)
-abnormal_sci_la = calculate_abnormalities(mean_ctrl_la_th, std_ctrl_la_th, distances_sci_la)
-abnormal_park_la = calculate_abnormalities(mean_ctrl_la_th, std_ctrl_la_th, distances_park_la)
+abnormal_md_la, diff_md_la = calculate_abnormalities(mean_ctrl_la_th, std_ctrl_la_th, distances_md_la, level=True)
+abnormal_ms_la, diff_ms_la = calculate_abnormalities(mean_ctrl_la_th, std_ctrl_la_th, distances_ms_la, level=True)
+abnormal_sci_la, diff_sci_la = calculate_abnormalities(mean_ctrl_la_th, std_ctrl_la_th, distances_sci_la, level=True)
+abnormal_park_la, diff_park_la = calculate_abnormalities(mean_ctrl_la_th, std_ctrl_la_th, distances_park_la, level=True)
 
-abnormal_md_tr = calculate_abnormalities(mean_ctrl_tr_th, std_ctrl_tr_th, distances_md_tr)
-abnormal_ms_tr = calculate_abnormalities(mean_ctrl_tr_th, std_ctrl_tr_th, distances_ms_tr)
-abnormal_sci_tr = calculate_abnormalities(mean_ctrl_tr_th, std_ctrl_tr_th, distances_sci_tr)
-abnormal_park_tr = calculate_abnormalities(mean_ctrl_tr_th, std_ctrl_tr_th, distances_park_tr)
+abnormal_md_tr, diff_md_tr = calculate_abnormalities(mean_ctrl_tr_th, std_ctrl_tr_th, distances_md_tr, level=True)
+abnormal_ms_tr, diff_ms_tr = calculate_abnormalities(mean_ctrl_tr_th, std_ctrl_tr_th, distances_ms_tr, level=True)
+abnormal_sci_tr, diff_sci_tr = calculate_abnormalities(mean_ctrl_tr_th, std_ctrl_tr_th, distances_sci_tr, level=True)
+abnormal_park_tr, diff_park_tr = calculate_abnormalities(mean_ctrl_tr_th, std_ctrl_tr_th, distances_park_tr, level=True)
 
 def get_phases(abnormalities, knee, hip):
     if len(abnormalities) > len(knee):
@@ -199,15 +206,18 @@ def percentage(phases_mtx):
     percents = np.zeros(np.shape(phases_mtx))
     for i in range(len(phases_mtx)):
         stance = np.array(np.where(phases_mtx[i]==1))
-        if np.max(stance)>154:
-            st_perc = (stance/np.max(stance))*100
-            percents[i,stance]= st_perc
+        if not not stance.any():           
+            if np.max(stance)>154:
+                st_perc = (stance/np.max(stance))*100
+                percents[i,stance]= st_perc
+            else:
+                st_perc = (stance/154)*100
+                percents[i, stance]= st_perc
+            swing = np.array(np.where(phases_mtx[i]==2))
+            sw_perc = np.interp(swing,[155,257],[0,100])
+            percents[i,swing]= sw_perc 
         else:
-            st_perc = (stance/154)*100
-            percents[i, stance]= st_perc
-        swing = np.array(np.where(phases_mtx[i]==2))
-        sw_perc = np.interp(swing,[155,257],[0,100])
-        percents[i,swing]= sw_perc      
+            percents[i,:]= 0
     return percents
 
 save_path = '/cluster/home/corteshg/gaitIdentification/phases_results_swst/'
