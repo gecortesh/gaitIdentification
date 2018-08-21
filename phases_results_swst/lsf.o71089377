@@ -1,0 +1,36 @@
+Sender: LSF System <lsfadmin@eu-ms-002-17>
+Subject: Job 71089377: <python abnormalGaitDeviationClusterswst.py> in cluster <euler> Exited
+
+Job <python abnormalGaitDeviationClusterswst.py> was submitted from host <eu-login-14-ng> by user <corteshg> in cluster <euler> at Mon Aug 20 23:12:24 2018.
+Job was executed on host(s) <eu-ms-002-17>, in queue <normal.24h>, as user <corteshg> in cluster <euler> at Mon Aug 20 23:12:39 2018.
+</cluster/home/corteshg> was used as the home directory.
+</cluster/home/corteshg/gaitIdentification/phases_results_swst> was used as the working directory.
+Started at Mon Aug 20 23:12:39 2018.
+Terminated at Mon Aug 20 23:12:40 2018.
+Results reported at Mon Aug 20 23:12:40 2018.
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+python abnormalGaitDeviationClusterswst.py
+------------------------------------------------------------
+
+Exited with exit code 2.
+
+Resource usage summary:
+
+    CPU time :                                   0.11 sec.
+    Max Memory :                                 11 MB
+    Average Memory :                             -
+    Total Requested Memory :                     30500.00 MB
+    Delta Memory :                               30489.00 MB
+    Max Swap :                                   -
+    Max Processes :                              -
+    Max Threads :                                -
+    Run time :                                   31 sec.
+    Turnaround time :                            16 sec.
+
+The output (if any) follows:
+
+python: can't open file 'abnormalGaitDeviationClusterswst.py': [Errno 2] No such file or directory
