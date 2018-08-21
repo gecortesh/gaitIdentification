@@ -180,7 +180,11 @@ abnormal_park_tr = calculate_abnormalities(mean_ctrl_tr_th, std_ctrl_tr_th, dist
 
 def get_phases(abnormalities, knee, hip):
     phases = np.zeros(np.shape(abnormalities))
-    for sample in  range(len(abnormalities)):
+    if len(abnormalities) > len(knee):
+        max_len = len(knee)
+    else:
+        max_len = len(abnormalities)
+    for sample in  range(max_len):
         deviations = np.where(abnormalities[sample]!=0)
         for dev in deviations[0]:
             knee_s = knee[sample][dev]
@@ -189,8 +193,6 @@ def get_phases(abnormalities, knee, hip):
             time_s = dev/len(knee[sample])
             phases[sample,dev] = fuzzy_gait_improved.detect_phase(knee_s, hip_s, thigh_s, time_s, visualize=False, mode='swst')
     return np.round(phases)
-
-
 
 def percentage(phases_mtx):
     percents = np.zeros(np.shape(phases_mtx))
